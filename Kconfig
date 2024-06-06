@@ -180,7 +180,7 @@ menu "RevK"
 	default 3600
 	depends on REVK_WIFI || REVK_MESH
 	help
-		Number of seconds off line before we completely reset
+		Number of seconds offline before we completely reset
 
 	config REVK_WIFIUPTIME
 	int "Turn off WiFi after this time"

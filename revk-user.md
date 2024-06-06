@@ -135,7 +135,7 @@ Sending a `setting` message with no suffix and no payload causes a `setting` res
 |`wifimqtt`|This is a special case, an SSID to use if possible (falls back to normal `wifissid`), and connect via MQTT to the router IP address received.|
 |`blink`|Status LED control (see below).|
 |`apport`|The TCP port for access point web page (normally 80)|
-|`apwait`|The time in seconds before entering AP mode when no WiFi (if `0` then AP mode not started just by being off line)|
+|`apwait`|The time in seconds before entering AP mode when no WiFi (if `0` then AP mode not started just by being offline)|
 |`aptime`|The time to stay in AP mode|
 |`apgpio`|The GPIO to check to force in to AP mode, this allows a button to force AP mode, for example.|
 |`apssid`|The SSID to use in AP mode, defaults to the `appname` based AP name|

@@ -260,7 +260,7 @@ static struct
 
 static uint32_t up_next;        // next up report (uptime)
 static EventGroupHandle_t revk_group;
-const static int GROUP_OFFLINE = BIT0;  // We are off line (IP not set)
+const static int GROUP_OFFLINE = BIT0;  // We are offline (IP not set)
 #if	defined(CONFIG_REVK_WIFI) || defined(CONFIG_REVK_MESH)
 const static int GROUP_WIFI = BIT1;     // We are WiFi connected
 const static int GROUP_IP = BIT2;       // We have IP address
