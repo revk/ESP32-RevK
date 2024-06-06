@@ -15,7 +15,7 @@ s	ntphost		CONFIG_REVK_NTPHOST	.revk=1			// NTP host
 s	tz		CONFIG_REVK_TZ		.revk=1			// Timezone (<a href='https://gist.github.com/alwynallan/24d96091655391107939' target=_blank>info</a>)
 u32	watchdogtime	CONFIG_REVK_WATCHDOG	.revk=1			// Watchdog (seconds)
 s	topic.group				.revk=1 .array=2	// MQTT Alternative hostname accepted for commands
-s	topic.command	command			.revk=1 .old="prefixcommand"			// MQTT Topic for commands 
+s	topic.command	command			.revk=1 .old="prefixcommand"			// MQTT Topic for commands
 s	topic.setting	setting			.revk=1 .old="prefixsetting"			// MQTT Topic for settings
 s	topic.state	state			.revk=1 .old="prefixstate"			// MQTT Topic for state
 s	topic.event	event			.revk=1 .old="prefixevent"			// MQTT Topic for event
@@ -35,7 +35,7 @@ blob	client.cert				.revk=1	.base64=1
 u16	ap.port		CONFIG_REVK_APPORT	.revk=1			// TCP port for config web pages on AP
 #endif
 u32	ap.time		CONFIG_REVK_APTIME	.revk=1			// Limit AP to time (seconds)
-u32	ap.wait		CONFIG_REVK_APWAIT	.revk=1			// Wait off line before starting AP (seconds)
+u32	ap.wait		CONFIG_REVK_APWAIT	.revk=1			// Wait offline before starting AP (seconds)
 gpio	ap.gpio		CONFIG_REVK_APGPIO	.revk=1			// Start AP on GPIO
 #endif
 
@@ -46,7 +46,7 @@ u16	mqtt.port	CONFIG_REVK_MQTTPORT	.revk=1	.array=CONFIG_REVK_MQTT_CLIENTS
 s	mqtt.user	CONFIG_REVK_MQTTUSER	.revk=1 .array=CONFIG_REVK_MQTT_CLIENTS
 s	mqtt.pass	CONFIG_REVK_MQTTPASS	.revk=1	.array=CONFIG_REVK_MQTT_CLIENTS	.secret=1
 blob	mqtt.cert	CONFIG_REVK_MQTTCERT	.revk=1	.array=CONFIG_REVK_MQTT_CLIENTS	.base64=1
-#endif  
+#endif
 
 
 #if     defined(CONFIG_REVK_WIFI) || defined(CONFIG_REVK_MESH)
@@ -67,7 +67,7 @@ bit	wifi.maxps	CONFIG_REVK_WIFIMAXPS	.revk=1			// WiFi power save (max)
 #ifndef	CONFIG_REVK_MESH
 s	ap.ssid		CONFIG_REVK_APSSID	.revk=1			// AP mode SSID (name)
 s	ap.pass		CONFIG_REVK_APPASS	.revk=1	.secret=1	// AP mode password
-u8	ap.max		CONFIG_REVK_APMAX	.revk=1	
+u8	ap.max		CONFIG_REVK_APMAX	.revk=1
 s	ap.ip		CONFIG_REVK_APIP	.revk=1			// AP mode block
 bit	ap.lr		CONFIG_REVK_APLR	.revk=1			// AP LR mode
 bit	ap.hide		CONFIG_REVK_APHIDE	.revk=1			// AP hide SSID
