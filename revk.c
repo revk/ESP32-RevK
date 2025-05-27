@@ -2439,7 +2439,7 @@ revk_boot (app_callback_t * app_callback_cb)
    if (ret_code == ESP_ERR_NVS_NO_FREE_PAGES || ret_code == ESP_ERR_NVS_NEW_VERSION_FOUND)
    {
       ESP_LOGE (TAG, "nvs_flash_init_partition failed, erasing nvs_flash");
-      nvs_flash_erase ();
+      nvs_flash_erase_partition (TAG);
       nvs_flash_init_partition (TAG);
    }
    
