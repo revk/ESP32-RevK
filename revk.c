@@ -1,4 +1,4 @@
-// Main control code, working with WiFi, MQTT, and managing settings and OTA Copyright Â ©2019 Adrian Kennard Andrews & Arnold Ltd
+// Main control code, working with WiFi, MQTT, and managing settings and OTA Copyright ï¿½ ï¿½2019 Adrian Kennard Andrews & Arnold Ltd
 static const char __attribute__((unused)) * TAG = "RevK";
 
 //#define       SETTING_DEBUG
@@ -2432,8 +2432,17 @@ revk_boot (app_callback_t * app_callback_cb)
 #endif
    ESP_LOGI (TAG, "nvs_flash_init");
    nvs_flash_init ();
+
+   // Check if NVS will produce and error on startup and format it if needed
    ESP_LOGI (TAG, "nvs_flash_init_partition");
-   nvs_flash_init_partition (TAG);
+   esp_err_t ret_code = nvs_flash_init_partition (TAG);
+   if (ret_code == ESP_ERR_NVS_NO_FREE_PAGES || ret_code == ESP_ERR_NVS_NEW_VERSION_FOUND)
+   {
+      ESP_LOGE (TAG, "nvs_flash_init_partition failed, erasing nvs_flash");
+      nvs_flash_erase ();
+      nvs_flash_init_partition (TAG);
+   }
+   
    ESP_LOGI (TAG, "nvs_open_from_partition");
    const esp_app_desc_t *app = esp_app_get_description ();
 #ifndef	CONFIG_REVK_OLD_SETTINGS
