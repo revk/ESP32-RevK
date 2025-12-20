@@ -783,7 +783,7 @@ load_value (revk_settings_t *s, const char *d, int index, void *ptr)
          d = e = NULL;
    }
    if (d < e && (s->hex || s->base32 || s->base64)
-       && (!s->secret || !*revk_settings_secret || e - d != sizeof (revk_settings_secret) - 1
+       && (!s->secret || !*revk_settings_secret || e - d != strlen (revk_settings_secret)
            || strncmp (revk_settings_secret, d, e - d))
 #ifdef	REVK_SETTINGS_HAS_NUMERIC
 #ifdef  REVK_SETTINGS_HAS_SIGNED
