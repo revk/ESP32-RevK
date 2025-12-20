@@ -42,7 +42,7 @@ strndup (const char *s, size_t l)
 }
 
 static const char *
-nvs_erase (revk_settings_t * s, const char *tag)
+nvs_erase (revk_settings_t *s, const char *tag)
 {
    if (!s->array)
       nvs_found[(s - revk_settings) / 8] &= ~(1 << ((s - revk_settings) & 7));
@@ -66,7 +66,7 @@ nvs_erase (revk_settings_t * s, const char *tag)
 }
 
 static const char *
-nvs_put (revk_settings_t * s, int index, void *ptr)
+nvs_put (revk_settings_t *s, int index, void *ptr)
 {                               // Put data, can be from ptr or from settings
    if (s->array && index >= s->array)
       return "Array overflow";
@@ -197,7 +197,7 @@ nvs_put (revk_settings_t * s, int index, void *ptr)
 }
 
 static const char *
-nvs_get (revk_settings_t * s, const char *tag, int index)
+nvs_get (revk_settings_t *s, const char *tag, int index)
 {                               // Getting NVS
    if (s->array && index >= s->array)
       return "Array overflow";
@@ -397,7 +397,7 @@ nvs_get (revk_settings_t * s, const char *tag, int index)
 
 #ifdef	REVK_SETTINGS_HAS_NUMERIC
 static const char *
-parse_numeric (revk_settings_t * s, void **pp, const char **dp, const char *e)
+parse_numeric (revk_settings_t *s, void **pp, const char **dp, const char *e)
 {                               // Single numeric parse to memory, advance memory and source
    if (!s || !dp || !pp)
       return "NULL";
@@ -549,7 +549,7 @@ parse_numeric (revk_settings_t * s, void **pp, const char **dp, const char *e)
 
 #ifdef	REVK_SETTINGS_HAS_NUMERIC
 static char *
-text_numeric (revk_settings_t * s, void *p)
+text_numeric (revk_settings_t *s, void *p)
 {
    char *temp = mallocspi (257),
       *t = temp;
@@ -639,7 +639,7 @@ text_numeric (revk_settings_t * s, void *p)
 #endif
 
 static int
-value_cmp (revk_settings_t * s, void *a, void *b)
+value_cmp (revk_settings_t *s, void *a, void *b)
 {                               // Pointer to actual data
    if (s->malloc)
    {
@@ -672,7 +672,7 @@ value_cmp (revk_settings_t * s, void *a, void *b)
 }
 
 char *
-revk_settings_text (revk_settings_t * s, int index, int *lenp)
+revk_settings_text (revk_settings_t *s, int index, int *lenp)
 {                               // Malloc'd string for value
    void *ptr = s->ptr;
    if (s->array)
@@ -759,7 +759,7 @@ revk_settings_text (revk_settings_t * s, int index, int *lenp)
 }
 
 static const char *
-load_value (revk_settings_t * s, const char *d, int index, void *ptr)
+load_value (revk_settings_t *s, const char *d, int index, void *ptr)
 {                               // Puts value in memory (or at ptr if set)
    if (!ptr)
       ptr = s->ptr;
@@ -783,6 +783,8 @@ load_value (revk_settings_t * s, const char *d, int index, void *ptr)
          d = e = NULL;
    }
    if (d < e && (s->hex || s->base32 || s->base64)
+       && (!s->secret || !*revk_settings_secret || e - d != sizeof (revk_settings_secret) - 1
+           || strncmp (revk_settings_secret, d, e - d))
 #ifdef	REVK_SETTINGS_HAS_NUMERIC
 #ifdef  REVK_SETTINGS_HAS_SIGNED
        && s->type != REVK_SETTINGS_SIGNED
@@ -792,7 +794,7 @@ load_value (revk_settings_t * s, const char *d, int index, void *ptr)
 #endif
 #endif
       )
-   {
+   {                            // decode content provided
       jo_t j = jo_create_alloc ();
       jo_stringn (j, NULL, d, e - d);
       jo_rewind (j);
@@ -1337,7 +1339,9 @@ revk_setting_dump (int level)
             break;
 #endif
          default:
-            if (s->hex)
+            if (s->secret && *revk_settings_secret)
+               jo_stringn (p, tag, data ? : "", len);
+            else if (s->hex)
                jo_base16 (p, tag, data ? : "", len);
             else if (s->base32)
                jo_base32 (p, tag, data ? : "", len);
@@ -1903,7 +1907,7 @@ revk_settings_find (const char *tag, int *indexp)
 }
 
 int
-revk_settings_set (revk_settings_t * s)
+revk_settings_set (revk_settings_t *s)
 {                               // If setting is set (as opposed to default)
    if (!s || !s->len)
       return -1;
