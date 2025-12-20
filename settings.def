@@ -43,6 +43,7 @@ bit	prefix.host	CONFIG_REVK_PREFIXHOST	.revk			// MQTT use (appname/)hostname/to
 #ifdef	CONFIG_REVK_BLINK_DEF
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
 gpio	blink		CONFIG_REVK_BLINK	.revk			// WS2812 LED
+bit	ws2812rgb	0			.revk			// Reverse green and red on WS2812 LED
 #else
 gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (set all the same for WS2812 LED)
 #endif

@@ -9,14 +9,14 @@ setenv SDKCONFIG "sdkconfig"
 if("$1" != "") setenv SDKCONFIG "$1"
 
 if(! -e "$SDKCONFIG") then
-	if(! -e sdkconfig.default)
+	if(! -e sdkconfig.defaults) then
 		echo "Missing $SDKCONFIG"
 		exit 0
 	endif
-	cp sdkconfig.default "$SDKCONFIG"
+	cp sdkconfig.defaults "$SDKCONFIG"
 endif
 
-# The variants are per silicon, e.g. 8266, ESP32, ESP32S1, ESP32S2, ESP32S3, ESP32C3, ESP32C6, ESP32H2 can all have different options
+# The variants are per silicon, e.g. 8266, ESP32, ESP32S1, ESP32S2, ESP32S3, ESP32C3, ESP32C5, ESP32C6, ESP32H2 can all have different options
 
 set add=()
 set rem=()
@@ -175,6 +175,21 @@ if("$BUILDSUFFIX" =~ *-C3*) then
 		setenv CHANGED	1
 	endif
 
+endif
+
+if("$BUILDSUFFIX" =~ *-C5*) then
+	grep -q CONFIG_IDF_TARGET_ESP32C5=y "$SDKCONFIG"
+	if($status) then
+		idf.py set-target esp32c5
+		setenv CHANGED	1
+	endif
+
+	set add=($add CONFIG_ESPTOOLPY_FLASHSIZE_8MB CONFIG_PARTITION_TABLE_CUSTOM)
+	set rem=($rem CONFIG_ESPTOOLPY_FLASHSIZE_4MB CONFIG_ESPTOOLPY_FLASHSIZE_16MB)
+	set part="components/ESP32-RevK/partitions_8m-c5.csv"
+
+	set add=($add CONFIG_SPIRAM CONFIG_SPIRAM_SPEED_80M)
+	set rem=($rem CONFIG_SPIRAM_SPEED_40M)
 endif
 
 if("$BUILDSUFFIX" =~ *-C6*) then

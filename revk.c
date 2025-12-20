@@ -350,7 +350,7 @@ void *
 mallocspi (size_t size)
 {
    void *mem = NULL;
-#if defined(CONFIG_ESP32_SPIRAM_SUPPORT) || defined(CONFIG_ESP32S3_SPIRAM_SUPPORT)
+#if defined(CONFIG_ESP32_SPIRAM_SUPPORT) || defined(CONFIG_ESP32S3_SPIRAM_SUPPORT) || defined(CONFIG_SPIRAM)
    mem = heap_caps_malloc (size, MALLOC_CAP_SPIRAM);
    if (!mem)
 #endif
@@ -775,8 +775,16 @@ wifi_sta_config (void)
    strncpy ((char *) cfg.sta.ssid, ssid, sizeof (cfg.sta.ssid));
    strncpy ((char *) cfg.sta.password, wifipass, sizeof (cfg.sta.password));
 #ifndef CONFIG_IDF_TARGET_ESP8266
+#ifndef CONFIG_IDF_TARGET_ESP32C5
    REVK_ERR_CHECK (esp_wifi_set_protocol
                    (ESP_IF_WIFI_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_LR));
+#else
+   wifi_protocols_t proto = { .ghz_2g = WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX,
+         .ghz_5g = WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX,
+   };
+   if(aplr) proto.ghz_2g |= WIFI_PROTOCOL_LR;
+   REVK_ERR_CHECK (esp_wifi_set_protocols(ESP_IF_WIFI_STA, &proto));
+#endif
 #endif
    REVK_ERR_CHECK (esp_wifi_set_config (ESP_IF_WIFI_STA, &cfg));
 }
@@ -817,8 +825,15 @@ wifi_init (void)
       cfg.ap.max_connection = apmax;
       esp_netif_ip_info_t info = { 0, };
       makeip (&info, *apip ? apip : "10.0.0.1/24", NULL);
+#ifndef CONFIG_IDF_TARGET_ESP32C5
       REVK_ERR_CHECK (esp_wifi_set_protocol
                       (ESP_IF_WIFI_AP, aplr ? WIFI_PROTOCOL_LR : (WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N)));
+#else
+      wifi_protocols_t proto;
+      proto.ghz_2g = aplr ? WIFI_PROTOCOL_LR : (WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX);
+      proto.ghz_5g = aplr ? 0 : (WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX);
+      REVK_ERR_CHECK (esp_wifi_set_protocols(ESP_IF_WIFI_AP, &proto));
+#endif
       REVK_ERR_CHECK (esp_netif_dhcps_stop (ap_netif));
       REVK_ERR_CHECK (esp_netif_set_ip_info (ap_netif, &info));
       REVK_ERR_CHECK (esp_netif_dhcps_start (ap_netif));
@@ -1887,7 +1902,11 @@ revk_blink_init (void)
                ),
             .max_leds = 1,      // The number of LEDs in the strip,
 #ifdef	LED_STRIP_COLOR_COMPONENT_FMT_GRB
+#ifdef	CONFIG_REVK_BLINK_WS2812_DEF
+            .color_component_format = ws2812rgb ? LED_STRIP_COLOR_COMPONENT_FMT_RGB : LED_STRIP_COLOR_COMPONENT_FMT_GRB,
+#else
             .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
+#endif
 #else
             .led_pixel_format = LED_PIXEL_FORMAT_GRB,
 #endif
@@ -2418,14 +2437,30 @@ gpio_ok (int8_t p)
       return 0;
    return 3;                    // All input and output
 #endif
+   // ESP32 (C5)
+#ifdef	CONFIG_IDF_TARGET_ESP32C5
+   if (p > 28)
+      return 0;
+   if (p == 13 || p == 14)
+      return 4;                 // special use (USB)
+   if ((p >= 16 && p <= 18) || (p >= 20 && p <= 22))
+      return 0;
+#ifdef	CONFIG_SPIRAM
+   if (p == 15)
+      return 0;
+#endif
+   if (p == 11 || p == 12)
+      return 3 + 8;             // Serial
+   return 3;                    // All input and output
+#endif
    // ESP32 (C6)
 #ifdef	CONFIG_IDF_TARGET_ESP32C6
-   if (p > 21)
+   if (p > 23)
       return 0;
-   if (p == 18 || p == 19)
+   if (p == 12 || p == 13)
       return 4;                 // special use (USB)
-   if (p >= 12 && p <= 17)
-      return 0;
+   if (p == 16 || p == 17)
+      return 3 + 8;             // Serial
    return 3;                    // All input and output
 #endif
    // ESP8266
@@ -4303,7 +4338,14 @@ ap_start (void)
    ESP_LOGE (TAG, "AP%s config mode start %.*s", mode == WIFI_MODE_STA ? "STA" : "", cfg.ap.ssid_len, cfg.ap.ssid);
    // Make it go
    esp_wifi_set_mode (mode == WIFI_MODE_STA ? WIFI_MODE_APSTA : WIFI_MODE_AP);
+#ifndef CONFIG_IDF_TARGET_ESP32C5
    REVK_ERR_CHECK (esp_wifi_set_protocol (ESP_IF_WIFI_AP, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N));
+#else
+   wifi_protocols_t proto = { .ghz_2g = WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX,
+         .ghz_5g = WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX
+   };
+   REVK_ERR_CHECK (esp_wifi_set_protocols (ESP_IF_WIFI_AP, &proto));
+#endif
    REVK_ERR_CHECK (esp_wifi_set_config (ESP_IF_WIFI_AP, &cfg));
    // DHCP
    esp_netif_ip_info_t info = {

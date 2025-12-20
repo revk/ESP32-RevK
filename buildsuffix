@@ -77,6 +77,11 @@ if(! $status) 	then
 	setenv	SUFFIX	"$SUFFIX-C3"
 endif
 
+grep -q CONFIG_IDF_TARGET_ESP32C5=y "$SDKCONFIG"
+if(! $status) 	then
+	setenv	SUFFIX	"$SUFFIX-C5"
+endif
+
 grep -q CONFIG_IDF_TARGET_ESP32C6=y "$SDKCONFIG"
 if(! $status) 	then
 	setenv	SUFFIX	"$SUFFIX-C6"
