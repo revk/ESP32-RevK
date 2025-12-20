@@ -779,11 +779,12 @@ wifi_sta_config (void)
    REVK_ERR_CHECK (esp_wifi_set_protocol
                    (ESP_IF_WIFI_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_LR));
 #else
-   wifi_protocols_t proto = { .ghz_2g = WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX,
-         .ghz_5g = WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX,
+   wifi_protocols_t proto = {.ghz_2g = WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX,
+      .ghz_5g = WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX,
    };
-   if(aplr) proto.ghz_2g |= WIFI_PROTOCOL_LR;
-   REVK_ERR_CHECK (esp_wifi_set_protocols(ESP_IF_WIFI_STA, &proto));
+   if (aplr)
+      proto.ghz_2g |= WIFI_PROTOCOL_LR;
+   REVK_ERR_CHECK (esp_wifi_set_protocols (ESP_IF_WIFI_STA, &proto));
 #endif
 #endif
    REVK_ERR_CHECK (esp_wifi_set_config (ESP_IF_WIFI_STA, &cfg));
@@ -832,7 +833,7 @@ wifi_init (void)
       wifi_protocols_t proto;
       proto.ghz_2g = aplr ? WIFI_PROTOCOL_LR : (WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX);
       proto.ghz_5g = aplr ? 0 : (WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX);
-      REVK_ERR_CHECK (esp_wifi_set_protocols(ESP_IF_WIFI_AP, &proto));
+      REVK_ERR_CHECK (esp_wifi_set_protocols (ESP_IF_WIFI_AP, &proto));
 #endif
       REVK_ERR_CHECK (esp_netif_dhcps_stop (ap_netif));
       REVK_ERR_CHECK (esp_netif_set_ip_info (ap_netif, &info));
@@ -3372,12 +3373,12 @@ revk_web_setting_edit (httpd_req_t *req, const char *tag, const char *field, con
    char *value = revk_settings_text (s, index, &len);
    if (!value)
       value = strdup ("");
-   if (((s->hex || s->base32 || s->base64) && !(0
+   if (((s->hex || s->base32 || s->base64) && !s->secret && !(0
 #ifdef  REVK_SETTINGS_HAS_SIGNED
-                                                || s->type == REVK_SETTINGS_SIGNED
+                                                              || s->type == REVK_SETTINGS_SIGNED
 #endif
 #ifdef  REVK_SETTINGS_HAS_UNSIGNED
-                                                || s->type == REVK_SETTINGS_UNSIGNED
+                                                              || s->type == REVK_SETTINGS_UNSIGNED
 #endif
         )))
    {                            // Expand block to base coded
@@ -3925,7 +3926,7 @@ revk_web_settings (httpd_req_t *req)
    revk_web_send (req, "<script>"       //
                   "var f=document.settings;"    //
                   "var reboot=0;"       //
-                  "var ws = new WebSocket((window.location.protocol=='https:'?'wss://':'ws://')+window.location.host+'/revk-status');ws.onopen=function(v){ws.send('%s');};"  //
+                  "var ws = new WebSocket((window.location.protocol=='https:'?'wss://':'ws://')+window.location.host+'/revk-status');ws.onopen=function(v){ws.send('%s');};"    //
                   "ws.onclose=function(v){ws=undefined;document.getElementById('_msg').textContent=(reboot?'Rebooting':'…');if(reboot)setTimeout(function(){location.href='/';},3000);};"     //
                   "ws.onerror=function(v){ws.close();};"        //
                   "ws.onmessage=function(e){"   //
@@ -4341,8 +4342,8 @@ ap_start (void)
 #ifndef CONFIG_IDF_TARGET_ESP32C5
    REVK_ERR_CHECK (esp_wifi_set_protocol (ESP_IF_WIFI_AP, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N));
 #else
-   wifi_protocols_t proto = { .ghz_2g = WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX,
-         .ghz_5g = WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX
+   wifi_protocols_t proto = {.ghz_2g = WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AX,
+      .ghz_5g = WIFI_PROTOCOL_11A | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_11AC | WIFI_PROTOCOL_11AX
    };
    REVK_ERR_CHECK (esp_wifi_set_protocols (ESP_IF_WIFI_AP, &proto));
 #endif

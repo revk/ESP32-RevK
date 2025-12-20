@@ -1339,9 +1339,7 @@ revk_setting_dump (int level)
             break;
 #endif
          default:
-            if (s->secret && *revk_settings_secret)
-               jo_stringn (p, tag, data ? : "", len);
-            else if (s->hex)
+            if (s->hex)
                jo_base16 (p, tag, data ? : "", len);
             else if (s->base32)
                jo_base32 (p, tag, data ? : "", len);
