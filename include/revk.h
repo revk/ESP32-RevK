@@ -68,7 +68,11 @@ typedef uint8_t mac_t[6];
 extern const char *revk_app;    // App name
 extern const char *revk_version;        // App version
 extern const char revk_build_suffix[];  // App build suffix
+#ifndef	CONFIG_SOC_IEEE802154_SUPPORTED
 extern char revk_id[13];        // Chip ID hex (from MAC)
+#else
+extern char revk_id[17];        // Chip ID hex (from MAC)
+#endif
 extern mac_t revk_mac;          // Our mac
 extern uint64_t revk_binid;     // Chip ID binary
 

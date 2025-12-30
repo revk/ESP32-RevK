@@ -241,7 +241,11 @@ settings
 /* Public */
 const char *revk_version = "";  /* Git version */
 const char *revk_app = "";      /* App name */
+#ifndef	CONFIG_SOC_IEEE802154_SUPPORTED
 char revk_id[13] = "";          /* Chip ID as hex (from MAC) */
+#else
+char revk_id[17] = "";          /* Chip ID as hex (from MAC) */
+#endif
 uint64_t revk_binid = 0;        /* Binary chip ID */
 mac_t revk_mac;                 // MAC
 
@@ -2694,8 +2698,14 @@ revk_boot (app_callback_t *app_callback_cb)
       snprintf (revk_id, sizeof (revk_id), "%06llX", revk_binid);
 #else
       revk_binid =
+#ifndef	CONFIG_SOC_IEEE802154_SUPPORTED
          ((uint64_t) revk_mac[0] << 40) + ((uint64_t) revk_mac[1] << 32) + ((uint64_t) revk_mac[2] << 24) +
          ((uint64_t) revk_mac[3] << 16) + ((uint64_t) revk_mac[4] << 8) + ((uint64_t) revk_mac[5]);
+#else
+         ((uint64_t) revk_mac[0] << 56) + ((uint64_t) revk_mac[1] << 48) + ((uint64_t) revk_mac[2] << 40) +
+         ((uint64_t) revk_mac[3] << 32) + ((uint64_t) revk_mac[4] << 24) + ((uint64_t) revk_mac[5] << 16) +
+         ((uint64_t) revk_mac[6] << 8) + ((uint64_t) revk_mac[7]);
+#endif
       snprintf (revk_id, sizeof (revk_id), "%012llX", revk_binid);
 #endif
       if (!hostname || !*hostname)
