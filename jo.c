@@ -1386,7 +1386,11 @@ jo_read_float (jo_t j)
    if (l <= 0)
       return NAN;
    char *end = NULL;
+#if defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) // fix https://github.com/revk/ESP32-RevK/issues/56
+   float value = strtof (temp, &end);
+#else
    long double value = strtold (temp, &end);
+#endif
    if (!end || *end)
       return NAN;
    return value;
