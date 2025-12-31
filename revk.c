@@ -2701,12 +2701,13 @@ revk_boot (app_callback_t *app_callback_cb)
 #ifndef	CONFIG_SOC_IEEE802154_SUPPORTED
          ((uint64_t) revk_mac[0] << 40) + ((uint64_t) revk_mac[1] << 32) + ((uint64_t) revk_mac[2] << 24) +
          ((uint64_t) revk_mac[3] << 16) + ((uint64_t) revk_mac[4] << 8) + ((uint64_t) revk_mac[5]);
+      snprintf (revk_id, sizeof (revk_id), "%012llX", revk_binid);
 #else
          ((uint64_t) revk_mac[0] << 56) + ((uint64_t) revk_mac[1] << 48) + ((uint64_t) revk_mac[2] << 40) +
          ((uint64_t) revk_mac[3] << 32) + ((uint64_t) revk_mac[4] << 24) + ((uint64_t) revk_mac[5] << 16) +
          ((uint64_t) revk_mac[6] << 8) + ((uint64_t) revk_mac[7]);
+      snprintf (revk_id, sizeof (revk_id), "%016llX", revk_binid);
 #endif
-      snprintf (revk_id, sizeof (revk_id), "%012llX", revk_binid);
 #endif
       if (!hostname || !*hostname)
          hostname = revk_id;    // default hostname (special case in settings)
@@ -4302,7 +4303,7 @@ make_ap_name (void *ssid)
       l = snprintf (ssid, 32, "%s", apssid);
    else
 #ifdef	CONFIG_REVK_APDNS
-      l = snprintf (ssid, 32, "%s-%012llX", revk_app, revk_binid);
+      l = snprintf (ssid, 32, "%s-%s", revk_app, revk_id);
 #else
       l = snprintf (ssid, 32, "%s-10.%d.%d.1", revk_app, (uint8_t) (revk_binid >> 8), (uint8_t) (revk_binid & 255));
 #endif
