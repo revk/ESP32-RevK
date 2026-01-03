@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5...3.25)
 
-set(SOURCES "revk.c" "jo.c" "lwmqtt.c" "settings_lib.c" "settings_old.c" "halib.c") "led.c"
+set(SOURCES "revk.c" "jo.c" "lwmqtt.c" "settings_lib.c" "settings_old.c" "halib.c" "led.c")
 set(RECS nvs_flash app_update esp_http_client esp-tls esp_http_server spi_flash esp_wifi esp_timer esp_system driver bt)
 
 # Add extra dependencies
