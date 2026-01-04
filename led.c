@@ -296,7 +296,7 @@ led_send (void)
 {
    if (!channel)
       return "No strips";
-   static int gpio = -1;
+   static int8_t gpio = -1;
    led_channel_t c = channel;
    while (c)
    {
