@@ -11,11 +11,13 @@
 
 static const char __attribute__((unused)) TAG[] = "LED";
 
+#ifdef	REVK_LED_FULL
 static const uint8_t bits[LED_TYPES] = {        //
    [LED_WS2812] = 3,            //
    [LED_SK6812] = 4,            //
    [LED_XINGLIGHT] = 4,         //
 };
+#endif
 
 static const uint8_t orders[6][3] = {
    [LED_GRB] = {1, 0, 2},       //
@@ -33,7 +35,9 @@ struct led_channel_s
    led_channel_t next;          // Next channel
    uint8_t gpio;                // GPIO
    uint8_t invert:1;            // GPIO invert
+#ifdef	REVK_LED_FULL
    uint8_t bits:3;              // Bits per bit (based on type)
+#endif
    uint8_t *mem;                // Allocated memory for strip DMA
    uint16_t size;               // Size of allocated memory
 };
@@ -47,7 +51,9 @@ struct led_strip_s
    led_channel_t channel;       // Channel
    uint16_t leds;               // Number of LEDs
    uint16_t size;               // Number of bytes
+#ifdef	REVK_LED_FULL
    uint8_t type:2;              // Strip type
+#endif
    uint8_t colours:3;           // Number of colours per LED
    uint8_t map[7];              // Map of RGB... to colour in memory (based on order)
    uint16_t offset;             // Offset in to allocated memory in channel
@@ -87,7 +93,9 @@ const char *
 led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if error)
            uint8_t gpio,        // GPIO
            uint8_t invert,      // GPIO invert
+#ifdef	REVK_LED_FULL
            uint8_t type,        // Strip type (for timing)
+#endif
            uint16_t leds,       // Number of LEDs
            uint8_t colours,     // Number of colours, normally 3 or 4, but can be more
            uint8_t order        // RGB Colour order
@@ -100,8 +108,10 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    *stripp = NULL;
    if (!colours)
       return "No colours";
+#ifdef	REVK_LED_FULL
    if (type >= LED_TYPES)
       return "Invalid type";
+#endif
    if (order >= 6)
       return "Invalid order";
    led_channel_t c = channel;
@@ -111,8 +121,10 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    {
       if (c->invert != invert)
          return "Invert mismatch";
+#ifdef	REVK_LED_FULL
       if (c->bits != bits[type])
          return "Type mismatch";
+#endif
    } else
    {
       if (gpio_set_level (gpio, invert) || gpio_set_direction (gpio, GPIO_MODE_OUTPUT))
@@ -122,13 +134,19 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
          return "malloc";
       memset (c, 0, sizeof (*c));
       c->gpio = gpio;
+#ifdef	REVK_LED_FULL
       c->bits = bits[type];
+#endif
       c->invert = invert;
       c->next = channel;
       channel = c;
    }
    uint16_t base = c->size;
+#ifdef	REVK_LED_FULL
    uint32_t size = (uint32_t) c->bits * colours * leds;
+#else
+   uint32_t size = (uint32_t) 4 * colours * leds;
+#endif
    uint32_t new = (uint32_t) base + size;
    if (new > 65535)
       return "Too many LEDs";   // Keep it sensible
@@ -143,7 +161,9 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
       return "malloc";
    memset (s, 0, sizeof (*s));
    s->channel = c;
+#ifdef	REVK_LED_FULL
    s->type = type;
+#endif
    s->leds = leds;
    s->size = size;
    s->colours = colours;
@@ -167,6 +187,7 @@ led_clear (led_strip_t s)
       return "No strip";
    uint8_t *m = s->channel->mem + s->offset;
    uint8_t *e = m + s->size;
+#ifdef	REVK_LED_FULL
    if (s->channel->bits == 3)
       while (m < e)
       {
@@ -175,10 +196,9 @@ led_clear (led_strip_t s)
          *m++ = 0x24;
       }                         //
    else if (s->channel->bits == 4)
+#endif
       while (m < e)
          *m++ = 0x88;           // 0 bits
-   else
-      return "Bad bits";
    return NULL;
 }
 
@@ -196,6 +216,7 @@ led_set (led_strip_t s, uint16_t led, ...)
    {
       uint8_t *m = s->channel->mem + s->offset;
       uint8_t v = va_arg (ap, int);
+#ifdef	REVK_LED_FULL
       uint32_t pos = ((uint32_t) led * s->colours + s->map[c]) * 8 * s->channel->bits;
       uint8_t b = 8;
       switch (s->type)
@@ -256,6 +277,14 @@ led_set (led_strip_t s, uint16_t led, ...)
          }
          break;
       }
+#else
+      // Simplified
+      m += ((uint32_t) led * s->colours + s->map[c]) * 4;
+      *m++ = ((v & 0x80 ? 0xE0 : 0x80) | (v & 0x40 ? 0x0E : 0x08));
+      *m++ = ((v & 0x20 ? 0xE0 : 0x80) | (v & 0x10 ? 0x0E : 0x08));
+      *m++ = ((v & 0x08 ? 0xE0 : 0x80) | (v & 0x04 ? 0x0E : 0x08));
+      *m++ = ((v & 0x02 ? 0xE0 : 0x80) | (v & 0x01 ? 0x0E : 0x08));
+#endif
    }
    va_end (ap);
    return NULL;
@@ -287,7 +316,11 @@ led_send (void)
       esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
 
       spi_device_interface_config_t device = {
+#ifdef	REVK_LED_FULL
          .clock_speed_hz = 2500000 * c->bits / 3,
+#else
+         .clock_speed_hz = 2500000 * 4 / 3,
+#endif
          .spics_io_num = -1,
          .queue_size = 4,
       };

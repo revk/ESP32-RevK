@@ -16,6 +16,8 @@ enum
    LED_BGR,
    LED_BRG,
 };
+
+#ifdef	REVK_LED_FULL
 enum
 {
    LED_WS2812,                  // 400/800ns and 800/400ns
@@ -23,6 +25,7 @@ enum
    LED_XINGLIGHT,               // 300/900ns and 900/300ns
    LED_TYPES
 };
+#endif
 
 // Functions return NULL if OK, else error message
 
@@ -35,7 +38,9 @@ const char *led_reset (int spi_host);
 const char *led_strip(led_strip_t * strip,       // Where to store strip handle (stores NULL if error)
                      uint8_t gpio,      // GPIO
                      uint8_t invert,    // GPIO invert
+#ifdef	REVK_LED_FULL
                      uint8_t type,      // Strip type (for timing)
+#endif
                      uint16_t leds,     // Number of LEDs
                      uint8_t colours,   // Number of colours, normally 3 or 4, but can be more
                      uint8_t order      // RGB Colour order

@@ -96,6 +96,13 @@ menu "RevK"
         help
 		Support LED strip for status LED - set by build system if led_strip managed_component is present
 
+	config REVK_LED_FULL
+	bool "LED strip library support multiple type of LED"
+	default n
+	depends on REVK_LED
+        help
+		If not set, then the LED library does a fixed timing pattern that seems to work with most LED types. Set this to specifically support different LED timings.
+
 	config REVK_RGB_MAX_R
 	int "Max red"
 	default 160
