@@ -85,7 +85,7 @@ menu "RevK"
 
 	config REVK_LED
 	bool "RevK LED strip library"
-	default n
+	default y
         help
 		LED strip support using SPI functions
 
