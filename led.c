@@ -337,7 +337,7 @@ led_send (void)
          .queue_size = 4,
       };
       spi_device_handle_t handle = NULL;
-      e = spi_bus_add_device (led_spi, &device, &handle);
+      esp_err_t e = spi_bus_add_device (led_spi, &device, &handle);
       if (e)
          return esp_err_to_name (e);
 
