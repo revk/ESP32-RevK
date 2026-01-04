@@ -296,24 +296,36 @@ led_send (void)
 {
    if (!channel)
       return "No strips";
+   static int gpio = -1;
    led_channel_t c = channel;
    while (c)
    {
-      // Note GPIO goes all shit during SPI set up... But seems to allow a long low at start
-      spi_bus_config_t config = {
-         .mosi_io_num = c->gpio,
-         .miso_io_num = -1,
-         .sclk_io_num = -1,
-         .quadwp_io_num = -1,
-         .quadhd_io_num = -1,
-         .data_io_default_level = 0,    // low for end of message reset and idle
-         .max_transfer_sz = (c->size + LED_RESET),
-      };
-      esp_err_t e = spi_bus_initialize (led_spi, &config, SPI_DMA_CH_AUTO);
-      if (e)
-         return esp_err_to_name (e);
-
-      esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
+      if (gpio != c->gpio)
+      {                         // change bus
+         if (gpio >= 0)
+         {                      // end previous
+            spi_bus_free (led_spi);
+	    // Set data idle
+            gpio_set_level (c->gpio, c->invert);
+            gpio_set_direction (c->gpio, GPIO_MODE_OUTPUT);
+            gpio = -1;
+         }
+         // Note GPIO goes all shit during SPI set up but not enough for even one pixel corruption...
+         spi_bus_config_t config = {
+            .mosi_io_num = c->gpio,
+            .miso_io_num = -1,
+            .sclk_io_num = -1,
+            .quadwp_io_num = -1,
+            .quadhd_io_num = -1,
+            .data_io_default_level = 0, // low for end of message reset and idle
+            .max_transfer_sz = (c->size + LED_RESET),
+         };
+         esp_err_t e = spi_bus_initialize (led_spi, &config, SPI_DMA_CH_AUTO);
+         if (e)
+            return esp_err_to_name (e);
+         esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
+         gpio = c->gpio;
+      }
 
       spi_device_interface_config_t device = {
 #ifdef	REVK_LED_FULL
@@ -327,22 +339,14 @@ led_send (void)
       spi_device_handle_t handle = NULL;
       e = spi_bus_add_device (led_spi, &device, &handle);
       if (e)
-      {
-         spi_bus_free (led_spi);
          return esp_err_to_name (e);
-      }
 
       spi_transaction_t txn = {
          .length = 8 * (c->size + LED_RESET),
          .tx_buffer = c->mem,
       };
-      e = spi_device_transmit (handle, &txn);
+      esp_err_t e = spi_device_transmit (handle, &txn);
       spi_bus_remove_device (handle);
-      spi_bus_free (led_spi);
-
-      gpio_set_level (c->gpio, c->invert);
-      gpio_set_direction (c->gpio, GPIO_MODE_OUTPUT);
-
       if (e)
          return esp_err_to_name (e);
       c = c->next;
