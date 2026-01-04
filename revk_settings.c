@@ -565,6 +565,7 @@ main (int argc, const char *argv[])
       }
 
       if (hasenum)
+      {
          for (d = defs; d; d = d->next)
             if (d->define)
                fprintf (H, "%s\n", d->define);
@@ -600,6 +601,7 @@ main (int argc, const char *argv[])
                if (n > 255)
                   errx (1, "Enum too big");
             }
+      }
 
       for (d = defs; d && (!d->type || strcmp (d->type, "blob")); d = d->next);
       if (d)
