@@ -345,7 +345,7 @@ led_send (void)
          .length = 8 * (c->size + LED_RESET),
          .tx_buffer = c->mem,
       };
-      esp_err_t e = spi_device_transmit (handle, &txn);
+      e = spi_device_transmit (handle, &txn);
       spi_bus_remove_device (handle);
       if (e)
          return esp_err_to_name (e);
