@@ -62,6 +62,7 @@ struct led_strip_s
 static led_channel_t channel = NULL;
 static led_strip_t strip = NULL;
 static spi_host_device_t led_spi = SPI_HOST_MAX;
+static int8_t spi_gpio = -1;
 
 // Functions return NULL if OK, else error message
 
@@ -70,6 +71,11 @@ static spi_host_device_t led_spi = SPI_HOST_MAX;
 const char *
 led_reset (int spihost)
 {
+   if (spi_gpio >= 0)
+   {                            // Bus active
+      spi_gpio = -1;
+      spi_bus_free (led_spi);
+   }
    while (strip)
    {
       led_strip_t s = strip;
@@ -296,19 +302,18 @@ led_send (void)
 {
    if (!channel)
       return "No strips";
-   static int8_t gpio = -1;
    led_channel_t c = channel;
    while (c)
    {
-      if (gpio != c->gpio)
+      if (spi_gpio != c->gpio)
       {                         // change bus
-         if (gpio >= 0)
+         if (spi_gpio >= 0)
          {                      // end previous
+            spi_gpio = -1;
             spi_bus_free (led_spi);
-	    // Set data idle
+            // Set data idle
             gpio_set_level (c->gpio, c->invert);
             gpio_set_direction (c->gpio, GPIO_MODE_OUTPUT);
-            gpio = -1;
          }
          // Note GPIO goes all shit during SPI set up but not enough for even one pixel corruption...
          spi_bus_config_t config = {
@@ -324,7 +329,7 @@ led_send (void)
          if (e)
             return esp_err_to_name (e);
          esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
-         gpio = c->gpio;
+         spi_gpio = c->gpio;
       }
 
       spi_device_interface_config_t device = {
