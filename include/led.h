@@ -28,7 +28,7 @@ enum
 
 // This frees any existing resources, invalidating any previous strip handles.
 // Do not call during led_send().
-const char *led_reset (spi_host_device_t);
+const char *led_reset (int spi_host);
 
 // This adds a new strip. If multiple strips on the same GPIO, add in order. Sets *strip
 // Do not call during led_send().

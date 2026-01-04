@@ -62,7 +62,7 @@ static spi_host_device_t led_spi = SPI_HOST_MAX;
 // This frees any existing resources, invalidating any previous strip handles.
 // Do not call during led_send().
 const char *
-led_reset (spi_host_device_t spihost)
+led_reset (int spihost)
 {
    while (strip)
    {

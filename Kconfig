@@ -59,7 +59,7 @@ menu "RevK"
 	config REVK_BLINK_WS2812_DEF
 	bool "Blink LED is WS2812 single GPIO setting"
 	default n
-	depends on REVK_LED_STRIP
+	depends on REVK_LED || REVK_LED_STRIP
         help
 		If blink setting is single GPIO
 
@@ -83,36 +83,37 @@ menu "RevK"
         help
 		Initial LED is green at startup
 
-	config REVK_LED_STRIP
-	bool "ESP LED strip library support"
-	default n
-        help
-		Support LED strip for status LED - set by build system if led_strip managed_component is present
-
 	config REVK_LED
 	bool "RevK LED strip library"
 	default n
         help
 		LED strip support using SPI functions
 
+	config REVK_LED_STRIP
+	bool "ESP LED strip library support"
+	default n
+	depends on ! REVK_LED
+        help
+		Support LED strip for status LED - set by build system if led_strip managed_component is present
+
 	config REVK_RGB_MAX_R
 	int "Max red"
 	default 160
-	depends on REVK_LED_STRIP
+	depends on REVK_LED || REVK_LED_STRIP
 	help
 		Max level for RED LED in RGB strip
 
 	config REVK_RGB_MAX_G
 	int "Max green"
 	default 130
-	depends on REVK_LED_STRIP
+	depends on REVK_LED || REVK_LED_STRIP
 	help
 		Max level for GREEN LED in RGB strip
 
 	config REVK_RGB_MAX_B
 	int "Max blue"
 	default 250
-	depends on REVK_LED_STRIP
+	depends on REVK_LED || REVK_LED_STRIP
 	help
 		Max level for BLUE LED in RGB strip
 

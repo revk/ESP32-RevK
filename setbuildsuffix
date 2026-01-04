@@ -33,7 +33,8 @@ else
 	set rem=($rem CONFIG_REVK_WEB_BETA);
 endif
 
-if(-e managed_components/espressif__led_strip) then
+grep -q CONFIG_REVK_LED=y "$SDKCONFIG"
+if($status && -e managed_components/espressif__led_strip) then
 	set add=($add CONFIG_REVK_LED_STRIP);
 else
 	set rem=($rem CONFIG_REVK_LED_STRIP);

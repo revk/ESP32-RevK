@@ -1778,7 +1778,7 @@ revk_rgb (char c)
    return rgb;
 }
 
-#if defined(CONFIG_REVK_LED) || defined(cCONFIG_REVK_LED_STRIP)
+#if defined(CONFIG_REVK_LED) || defined(CONFIG_REVK_LED_STRIP)
 const uint8_t gamma8[256] = {
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,

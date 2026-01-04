@@ -236,7 +236,7 @@ void revk_blink (uint8_t on, uint8_t off, const char *colours); // Set LED blink
 uint32_t revk_blinker (void);   // Return colour for blinking status LED (as per revk_rgb) plud top bit for basic blink cycle
 uint32_t revk_rgb (char c);     // Provide RGB colour for character, with scaling, and so on, in bottom 3 bytes. Top byte has 2 bits per colour.
 
-#if defined(CONFIG_REVK_LED) || defined(cCONFIG_REVK_LED_STRIP)
+#if defined(CONFIG_REVK_LED) || defined(CONFIG_REVK_LED_STRIP)
 extern const uint8_t gamma8[256];
 #endif
 
