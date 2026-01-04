@@ -259,8 +259,12 @@ ota_in_progress (void)
    return ota_percent > 0 && ota_percent <= 100;
 }
 
+#ifdef	CONFIG_REVK_LED
+led_strip_t revk_strip = NULL;
+#else
 #ifdef	CONFIG_REVK_LED_STRIP
 led_strip_handle_t revk_strip = NULL;
+#endif
 #endif
 
 /* Local */
@@ -1774,7 +1778,7 @@ revk_rgb (char c)
    return rgb;
 }
 
-#ifdef	CONFIG_REVK_LED_STRIP
+#if defined(CONFIG_REVK_LED) || defined(cCONFIG_REVK_LED_STRIP)
 const uint8_t gamma8[256] = {
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -1793,7 +1797,20 @@ const uint8_t gamma8[256] = {
    177, 180, 182, 184, 186, 189, 191, 193, 196, 198, 200, 203, 205, 208, 210, 213,
    215, 218, 220, 223, 225, 228, 231, 233, 236, 239, 241, 244, 247, 249, 252, 255
 };
+#endif
 
+#ifdef	CONFIG_REVK_LED
+void
+revk_led (led_strip_t strip, int led, uint8_t scale, uint32_t rgb)
+{                               // Set LED strip with gamma
+   if (strip)
+      led_set (strip, led,      //
+               gamma8[scale * ((rgb >> 16) & 255) / 255],       //
+               gamma8[scale * ((rgb >> 8) & 255) / 255],        //
+               gamma8[scale * ((rgb >> 0) & 255) / 255]);
+}
+#else
+#ifdef	CONFIG_REVK_LED_STRIP
 void
 revk_led (led_strip_handle_t strip, int led, uint8_t scale, uint32_t rgb)
 {                               // Set LED strip with gamma
@@ -1803,6 +1820,7 @@ revk_led (led_strip_handle_t strip, int led, uint8_t scale, uint32_t rgb)
                            gamma8[scale * ((rgb >> 8) & 255) / 255],    //
                            gamma8[scale * ((rgb >> 0) & 255) / 255]);
 }
+#endif
 #endif
 
 uint32_t
@@ -1866,7 +1884,7 @@ revk_blinker (void)
 void
 revk_blink_init (void)
 {                               // LED blinking initialisation
-#ifdef CONFIG_REVK_LED_STRIP
+#if defined(CONFIG_REVK_LED_STRIP) || defined(CONFIG_REVK_LED)
    if (
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
          blink.set
@@ -1897,6 +1915,21 @@ revk_blink_init (void)
 #endif
       } else
       {                         // Initialise the LED strip for one LED. This can, however, be pre-set by the app where we will refresh every 10th second and set 1st LED for status
+#ifdef	CONFIG_REVK_LED
+         const char *e = led_strip (&revk_strip,
+#ifdef	CONFIG_REVK_BLINK_WS2812_DEF
+                                    blink.num,
+                                    blink.invert,
+#else
+                                    blink[0].num,
+                                    blink[0].invert,
+#endif
+                                    LED_XINGLIGHT,
+                                    1, 3,
+                                    LED_GRB);
+         if (e)
+            ESP_LOGE (TAG, "Fail LED %s", e);
+#else
          led_strip_config_t strip_config = {
             .strip_gpio_num = (
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
@@ -1930,6 +1963,7 @@ revk_blink_init (void)
             // One LED so no need for DMA
          };
          REVK_ERR_CHECK (led_strip_new_rmt_device (&strip_config, &rmt_config, &revk_strip));
+#endif
       }
    } else
 #endif
@@ -1984,15 +2018,21 @@ revk_blink_do (void)
          revk_gpio_set (blink[1], (rgb >> 27) & 1);
          revk_gpio_set (blink[2], (rgb >> 25) & 1);
       }
-#ifdef  CONFIG_REVK_LED_STRIP
+#if defined(CONFIG_REVK_LED_STRIP) || defined(CONFIG_REVK_LED)
       else if (revk_strip)
       {
          revk_led (revk_strip, 0, 255, rgb);
+
+#ifndef	CONFIG_REVK_LED
          led_strip_refresh (revk_strip);
+#endif
       }
 #endif
 #endif
    }
+#ifdef	CONFIG_REVK_LED
+   led_send ();
+#endif
 }
 #endif
 

@@ -39,6 +39,9 @@
 #ifdef  CONFIG_REVK_LED_STRIP
 #include "led_strip.h"
 #endif
+#ifdef  CONFIG_REVK_LED
+#include "led.h"
+#endif
 
 #ifndef  CONFIG_REVK_OLD_SETTINGS
 #include "../../main/settings.h"
@@ -96,8 +99,12 @@ extern char *nodename;          // Node name
 
 extern esp_netif_t *sta_netif;
 extern esp_netif_t *ap_netif;
+#ifdef	CONFIG_REVK_LED
+extern led_strip_t revk_strip;
+#else
 #ifdef  CONFIG_REVK_LED_STRIP
 extern led_strip_handle_t revk_strip;
+#endif
 #endif
 
 jo_t jo_make (const char *nodename);    // Start object with node name
@@ -229,9 +236,16 @@ void revk_blink (uint8_t on, uint8_t off, const char *colours); // Set LED blink
 uint32_t revk_blinker (void);   // Return colour for blinking status LED (as per revk_rgb) plud top bit for basic blink cycle
 uint32_t revk_rgb (char c);     // Provide RGB colour for character, with scaling, and so on, in bottom 3 bytes. Top byte has 2 bits per colour.
 
-#ifdef  CONFIG_REVK_LED_STRIP
+#if defined(CONFIG_REVK_LED) || defined(cCONFIG_REVK_LED_STRIP)
 extern const uint8_t gamma8[256];
+#endif
+
+#ifdef	CONFIG_REVK_LED
+void revk_led (led_strip_t strip, int led, uint8_t scale, uint32_t rgb); // Set LED from RGB with scale and apply gamma
+#else
+#ifdef  CONFIG_REVK_LED_STRIP
 void revk_led (led_strip_handle_t strip, int led, uint8_t scale, uint32_t rgb); // Set LED from RGB with scale and apply gamma
+#endif
 #endif
 
 #ifdef  CONFIG_REVK_BLINK_SUPPORT

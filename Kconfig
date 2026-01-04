@@ -84,10 +84,16 @@ menu "RevK"
 		Initial LED is green at startup
 
 	config REVK_LED_STRIP
-	bool "LED strip support functions"
+	bool "ESP LED strip library support"
 	default n
         help
 		Support LED strip for status LED - set by build system if led_strip managed_component is present
+
+	config REVK_LED
+	bool "RevK LED strip library"
+	default n
+        help
+		LED strip support using SPI functions
 
 	config REVK_RGB_MAX_R
 	int "Max red"

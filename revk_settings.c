@@ -566,6 +566,9 @@ main (int argc, const char *argv[])
 
       if (hasenum)
          for (d = defs; d; d = d->next)
+            if (d->define)
+               fprintf (H, "%s\n", d->define);
+	    else
             if (d->type && !strcmp (d->type, "enum"))
             {                   // Create local enums
                if (!d->enums)
@@ -637,7 +640,6 @@ main (int argc, const char *argv[])
          fprintf (H, "struct revk_settings_bits_s {\n");
          fprintf (C, "revk_settings_bits_t revk_settings_bits={0};\n");
          for (d = defs; d; d = d->next)
-         {
             if (d->define)
                fprintf (H, "%s\n", d->define);
             else if (d->type && !strcmp (d->type, "bit"))
@@ -647,7 +649,6 @@ main (int argc, const char *argv[])
                   fprintf (H, "\t// %s", d->comment);
                fprintf (H, "\n");
             }
-         }
          fprintf (H, "};\n");
          for (d = defs; d; d = d->next)
             if (d->define)
@@ -890,7 +891,9 @@ main (int argc, const char *argv[])
          }
       // Final includes
       for (d = defs; d; d = d->next)
-         if (d->name && d->decimal)
+         if (d->define)
+            fprintf (C, "%s\n", d->define);
+      else if (d->name && d->decimal)
          {
             fprintf (H, "#define	%s_scale	1", d->name);
             for (int i = 0; i < d->decimal; i++)
