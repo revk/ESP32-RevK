@@ -322,16 +322,6 @@ led_send (void)
    led_channel_t c = channel;
    while (c)
    {
-      esp_err_t e = 0;
-      uint32_t len = c->size + LED_RESET;
-      uint8_t *m = c->mem;
-#ifdef	CONFIG_REVK_LED_FULL
-      uint32_t max = (SPI_LL_DMA_MAX_BIT_LEN / 8) / c->bits * c->bits;
-#else
-      uint32_t max = (SPI_LL_DMA_MAX_BIT_LEN / 8) / 4 * 4;
-#endif
-
-      esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
       spi_transaction_t txn = {
          .length = 8 * (LED_RESET + c->size),
          .tx_buffer = c->mem,
@@ -341,7 +331,8 @@ led_send (void)
          .override_freq_hz = 2500000 * 4 / 3,
 #endif
       };
-      e = spi_device_transmit (handle, &txn);
+      esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
+      esp_err_t e = spi_device_transmit (handle, &txn);
       esp_rom_gpio_connect_out_signal (c->gpio, SIG_GPIO_OUT_IDX, c->invert, false);
 
       if (e)
