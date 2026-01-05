@@ -58,7 +58,7 @@ menu "RevK"
 
 	config REVK_BLINK_WS2812_DEF
 	bool "Blink LED is WS2812 single GPIO setting"
-	default n
+	default y
 	depends on REVK_LED || REVK_LED_STRIP
         help
 		If blink setting is single GPIO
