@@ -190,7 +190,7 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    {
       if (gpio_reset_pin (gpio) || gpio_set_level (gpio, 0) || gpio_set_direction (gpio, GPIO_MODE_OUTPUT))
          return "GPIO error";
-      c = malloc (sizeof (*c));
+      c = heap_caps_malloc_prefer (sizeof (*c), MALLOC_CAP_SPIRAM);
       if (!c)
          return "malloc";
       memset (c, 0, sizeof (*c));
@@ -217,7 +217,7 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    memset (mem, 0, LED_RESET);
    c->mem = mem;
    c->size = new;
-   led_strip_t s = malloc (sizeof (*s));
+   led_strip_t s = heap_caps_malloc_prefer (sizeof (*s), MALLOC_CAP_SPIRAM);
    if (!s)
       return "malloc";
    memset (s, 0, sizeof (*s));
