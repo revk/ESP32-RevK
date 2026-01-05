@@ -332,7 +332,7 @@ led_send (void)
 
       esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
       esp_err_t e = spi_device_transmit (handle, &txn);
-      esp_rom_gpio_connect_out_signal (c->gpio, SIG_GPIO_OUT_IDX, false, false);
+      esp_rom_gpio_connect_out_signal (c->gpio, SIG_GPIO_OUT_IDX, c->invert, false);
 
       if (e)
          return esp_err_to_name (e);
