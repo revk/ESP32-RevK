@@ -237,6 +237,7 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    s->next = strip;
    strip = s;
    *stripp = s;
+   led_clear (s);
    return NULL;
 }
 
