@@ -8,6 +8,7 @@
 #include "soc/spi_periph.h"
 #include <driver/gpio.h>
 #include "esp_log.h"
+#include "hal/spi_ll.h"
 
 static const char __attribute__((unused)) TAG[] = "LED";
 
@@ -109,7 +110,7 @@ set_spi (spi_host_device_t host)
       .quadwp_io_num = -1,
       .quadhd_io_num = -1,
       .data_io_default_level = 0,       // low for end of message reset and idle
-      .max_transfer_sz = 65536,
+      .max_transfer_sz = SPI_LL_DMA_MAX_BIT_LEN / 8,
    };
    esp_err_t e = spi_bus_initialize (host, &config, SPI_DMA_CH_AUTO);
    if (e)
@@ -209,7 +210,7 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    uint32_t size = (uint32_t) 4 * colours * leds;
 #endif
    uint32_t new = (uint32_t) base + size;
-   if (new > 65535)
+   if (LED_RESET + new > SPI_LL_DMA_MAX_BIT_LEN / 8)
       return "Too many LEDs";   // Keep it sensible
    uint8_t *mem = heap_caps_realloc (c->mem, LED_RESET + new, MALLOC_CAP_DMA);
    if (!mem)
@@ -321,18 +322,26 @@ led_send (void)
    led_channel_t c = channel;
    while (c)
    {
+      esp_err_t e = 0;
+      uint32_t len = c->size + LED_RESET;
+      uint8_t *m = c->mem;
+#ifdef	CONFIG_REVK_LED_FULL
+      uint32_t max = (SPI_LL_DMA_MAX_BIT_LEN / 8) / c->bits * c->bits;
+#else
+      uint32_t max = (SPI_LL_DMA_MAX_BIT_LEN / 8) / 4 * 4;
+#endif
+
+      esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
       spi_transaction_t txn = {
-         .length = 8 * (c->size + LED_RESET),
+         .length = 8 * (LED_RESET + c->size),
+         .tx_buffer = c->mem,
 #ifdef	CONFIG_REVK_LED_FULL
          .override_freq_hz = 2500000 * c->bits / 3,
 #else
          .override_freq_hz = 2500000 * 4 / 3,
 #endif
-         .tx_buffer = c->mem,
       };
-
-      esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
-      esp_err_t e = spi_device_transmit (handle, &txn);
+      e = spi_device_transmit (handle, &txn);
       esp_rom_gpio_connect_out_signal (c->gpio, SIG_GPIO_OUT_IDX, c->invert, false);
 
       if (e)
