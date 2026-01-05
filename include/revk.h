@@ -99,13 +99,6 @@ extern char *nodename;          // Node name
 
 extern esp_netif_t *sta_netif;
 extern esp_netif_t *ap_netif;
-#ifdef	CONFIG_REVK_LED
-extern led_strip_t revk_strip;
-#else
-#ifdef  CONFIG_REVK_LED_STRIP
-extern led_strip_handle_t revk_strip;
-#endif
-#endif
 
 jo_t jo_make (const char *nodename);    // Start object with node name
 

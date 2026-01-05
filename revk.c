@@ -260,10 +260,10 @@ ota_in_progress (void)
 }
 
 #ifdef	CONFIG_REVK_LED
-led_strip_t revk_strip = NULL;
+static led_strip_t revk_strip = NULL;
 #else
 #ifdef	CONFIG_REVK_LED_STRIP
-led_strip_handle_t revk_strip = NULL;
+static led_strip_handle_t revk_strip = NULL;
 #endif
 #endif
 
