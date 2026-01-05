@@ -1924,7 +1924,7 @@ revk_blink_init (void)
                                     blink[0].num,
                                     blink[0].invert,
 #endif
-#ifdef	REVK_LED_FULL
+#ifdef	CONFIG_REVK_LED_FULL
                                     LED_XINGLIGHT,
 #endif
                                     1, 3,

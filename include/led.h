@@ -17,7 +17,7 @@ enum
    LED_BRG,
 };
 
-#ifdef	REVK_LED_FULL
+#ifdef	CONFIG_REVK_LED_FULL
 enum
 {
    LED_WS2812,                  // 400/800ns and 800/400ns
@@ -29,16 +29,21 @@ enum
 
 // Functions return NULL if OK, else error message
 
-// This frees any existing resources, invalidating any previous strip handles.
-// Do not call during led_send().
-const char *led_reset (int spi_host);
+// This claims the specified spi host - optional, this is called on first led_strip with a default SPI host otherwise
+// It also clears / releases any previous resources
+// THIS INVALIDATES EXISTING STRIP HANDLES - DO NOT CALL DURING led_send()
+const char *led_init (int spi_host);
+
+// This releases the SPI host and frees resources
+// THIS INVALIDATES EXISTING STRIP HANDLES - DO NOT CALL DURING led_send()
+const char *led_deinit(void);
 
 // This adds a new strip. If multiple strips on the same GPIO, add in order. Sets *strip
 // Do not call during led_send().
 const char *led_strip(led_strip_t * strip,       // Where to store strip handle (stores NULL if error)
                      uint8_t gpio,      // GPIO
                      uint8_t invert,    // GPIO invert
-#ifdef	REVK_LED_FULL
+#ifdef	CONFIG_REVK_LED_FULL
                      uint8_t type,      // Strip type (for timing)
 #endif
                      uint16_t leds,     // Number of LEDs
