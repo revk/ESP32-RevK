@@ -259,11 +259,13 @@ ota_in_progress (void)
    return ota_percent > 0 && ota_percent <= 100;
 }
 
+#ifdef  CONFIG_REVK_BLINK_SUPPORT
 #ifdef	CONFIG_REVK_LED
 static led_strip_t revk_strip = NULL;
 #else
 #ifdef	CONFIG_REVK_LED_STRIP
 static led_strip_handle_t revk_strip = NULL;
+#endif
 #endif
 #endif
 
