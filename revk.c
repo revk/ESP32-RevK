@@ -2011,7 +2011,9 @@ revk_blink_do (void)
       if (revk_strip)
       {
          revk_led (revk_strip, 0, 255, rgb);
+#ifndef	CONFIG_REVK_LED
          led_strip_refresh (revk_strip);
+#endif
       }
 #else
       if (!blink[1].set)
