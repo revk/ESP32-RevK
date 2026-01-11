@@ -165,9 +165,9 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
 {
    if (led_spi == SPI_HOST_MAX)
 #if	SOC_SPI_PERIPH_NUM < 3
-      set_spi (SPI3_HOST);
-#else
       set_spi (SPI2_HOST);
+#else
+      set_spi (SPI3_HOST);
 #endif
    if (!stripp)
       return "No strip pointer";
