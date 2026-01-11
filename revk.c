@@ -53,7 +53,7 @@ static const char __attribute__((unused)) * TAG = "RevK";
 #include "mdns.h"
 #endif
 #ifdef  CONFIG_NIMBLE_ENABLED
-#include "esp_bt.h"
+#include "nimble/nimble_port.h"
 #endif
 #if	defined(CONFIG_REVK_LUNAR) || defined(CONFIG_REVK_SOLAR)
 #include <math.h>
@@ -4819,7 +4819,10 @@ revk_upgrade (const char *target, jo_t j)
       revk_restart (30, "OTA Download");        // Restart if download does not happen properly
 #ifdef	CONFIG_NIMBLE_ENABLED
       ESP_LOGI (TAG, "Stopping any BLE");
-      esp_bt_controller_disable ();     // Kill bluetooth during download
+      if(nimble_port_stop()) // Stop bluetooth during download
+      {
+         nimble_port_deinit();
+      }
       esp_wifi_set_ps (WIFI_PS_NONE);   // Full wifi
 #endif
       sleep (1);
