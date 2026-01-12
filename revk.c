@@ -2807,7 +2807,7 @@ revk_start (void)
 #ifdef  CONFIG_MDNS_MAX_INTERFACES
    REVK_ERR_CHECK (mdns_init ());
    mdns_hostname_set (hostname);
- mdns_instance_name_set (*hostdesc:hostdesc ? : hostname);
+ mdns_instance_name_set (*instance:instance ? : hostname);
 #endif
 #endif
 #endif
@@ -3858,7 +3858,7 @@ revk_web_settings (httpd_req_t *req)
             if (!revk_link_down ())
             {
                revk_web_setting_s (req, "Hostname", "hostname", hostname, NULL, NULL);
-               revk_web_setting_s (req, "Description", "hostdesc", hostdesc, NULL, NULL);
+               revk_web_setting_s (req, "Description", "instance", instance, NULL, NULL);
             }
 #else
             revk_web_setting_s (req, "Hostname", "hostname", hostname, NULL, NULL);
@@ -4824,9 +4824,9 @@ revk_upgrade (const char *target, jo_t j)
       revk_restart (30, "OTA Download");        // Restart if download does not happen properly
 #ifdef	CONFIG_NIMBLE_ENABLED
       ESP_LOGI (TAG, "Stopping any BLE");
-      if(nimble_port_stop()) // Stop bluetooth during download
+      if (nimble_port_stop ())  // Stop bluetooth during download
       {
-         nimble_port_deinit();
+         nimble_port_deinit ();
       }
       esp_wifi_set_ps (WIFI_PS_NONE);   // Full wifi
 #endif

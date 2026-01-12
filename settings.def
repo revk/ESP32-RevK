@@ -3,7 +3,7 @@ s	password				.revk .hide .secret	// Settings password<br>(not sent securely so 
 #endif
 #ifdef  CONFIG_MDNS_MAX_INTERFACES
 s	hostname				.revk .hide			// Hostname[.local]<br>(used in DHCP and MQTT)
-s	hostdesc				.revk .hide			// Descriptive name of host, default is hostname
+s	instance				.revk .hide			// Descriptive name of host, default is hostname
 #else
 s	hostname				.revk .hide			// Host name<br>(used in DHCP and MQTT)
 #endif
