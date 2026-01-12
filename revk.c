@@ -1930,7 +1930,10 @@ revk_blink_init (void)
                                     LED_XINGLIGHT,
 #endif
                                     1, 3,
-                                    ws2812rgb ? LED_RGB : LED_GRB);
+#ifdef	CONFIG_REVK_BLINK_WS2812_DEF
+                                    ws2812rgb ? LED_RGB :
+#endif
+                                    LED_GRB);
          if (e)
             ESP_LOGE (TAG, "Fail LED %s", e);
 #else
