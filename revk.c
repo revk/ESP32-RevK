@@ -2807,7 +2807,7 @@ revk_start (void)
 #ifdef  CONFIG_MDNS_MAX_INTERFACES
    REVK_ERR_CHECK (mdns_init ());
    mdns_hostname_set (hostname);
-   mdns_instance_name_set (revk_app);
+ mdns_instance_name_set (*hostdesc:hostdesc ? : hostname);
 #endif
 #endif
 #endif
@@ -3856,8 +3856,13 @@ revk_web_settings (httpd_req_t *req)
             revk_web_setting_s (req, "Passphrase", "wifipass", wifipass, "WiFi pass", NULL);
 #ifndef  CONFIG_MDNS_MAX_INTERFACES
             if (!revk_link_down ())
-#endif
+            {
                revk_web_setting_s (req, "Hostname", "hostname", hostname, NULL, NULL);
+               revk_web_setting_s (req, "Description", "hostdesc", hostdesc, NULL, NULL);
+            }
+#else
+            revk_web_setting_s (req, "Hostname", "hostname", hostname, NULL, NULL);
+#endif
             if (!shutdown)
                revk_web_send (req, "<tr id=_found hidden><td>Found:</td><td colspan=2 id=_list></td></tr>");
          }
