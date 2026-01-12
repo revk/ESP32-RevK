@@ -2807,7 +2807,7 @@ revk_start (void)
 #ifdef  CONFIG_MDNS_MAX_INTERFACES
    REVK_ERR_CHECK (mdns_init ());
    mdns_hostname_set (hostname);
- mdns_instance_name_set (*instance:instance ? : hostname);
+   mdns_instance_name_set (*instance ? instance : hostname);
 #endif
 #endif
 #endif
