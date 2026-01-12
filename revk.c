@@ -3657,7 +3657,11 @@ revk_web_settings (httpd_req_t *req)
    }
    char *qs = NULL;
    revk_web_head (req, "Settings");
-   revk_web_send (req, "<h1>%s <b id=_msg class=status>%s</b></h1>", revk_web_safe (&qs, hostname), get_status_text ());
+   revk_web_send (req, "<h1>%s <b id=_msg class=status>%s</b></h1>", revk_web_safe (&qs,
+#ifdef CONFIG_MDNS_MAX_INTERFACES
+                                                                                    *instance ? instance :
+#endif
+                                                                                    hostname), get_status_text ());
    jo_t j = revk_web_query (req);
 #ifdef  CONFIG_REVK_SETTINGS_PASSWORD
    uint8_t loggedin = 0;
@@ -3857,14 +3861,9 @@ revk_web_settings (httpd_req_t *req)
                revk_web_setting_info (req, "Set these to connect to your network/internet");
             revk_web_setting_s (req, "SSID", "wifissid", wifissid, "WiFi name", NULL);
             revk_web_setting_s (req, "Passphrase", "wifipass", wifipass, "WiFi pass", NULL);
-#ifndef  CONFIG_MDNS_MAX_INTERFACES
-            if (!revk_link_down ())
-            {
-               revk_web_setting_s (req, "Hostname", "hostname", hostname, NULL, NULL);
-               revk_web_setting_s (req, "Description", "instance", instance, NULL, NULL);
-            }
-#else
             revk_web_setting_s (req, "Hostname", "hostname", hostname, NULL, NULL);
+#ifdef  CONFIG_MDNS_MAX_INTERFACES
+            revk_web_setting_s (req, "Description", "instance", instance, NULL, NULL);
 #endif
             if (!shutdown)
                revk_web_send (req, "<tr id=_found hidden><td>Found:</td><td colspan=2 id=_list></td></tr>");
