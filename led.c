@@ -34,7 +34,10 @@ typedef struct led_channel_s *led_channel_t;
 struct led_channel_s
 {
    led_channel_t next;          // Next channel
-   uint8_t gpio;                // GPIO
+   int8_t gpio;                 // GPIO
+#ifdef	CONFIG_REVK_LED_TEST
+   int8_t loop;                 // GPIO for loopback test -1 for not in use
+#endif
    uint8_t invert:1;            // GPIO invert
 #ifdef	CONFIG_REVK_LED_FULL
    uint8_t bits:3;              // Bits per bit (based on type)
@@ -153,8 +156,11 @@ led_deinit (void)
 // Do not call during led_send().
 const char *
 led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if error)
-           uint8_t gpio,        // GPIO
+           int8_t gpio,         // GPIO
            uint8_t invert,      // GPIO invert
+#ifdef	CONFIG_REVK_LED_TEST
+           int8_t loop,         // GPIO loopback test, -1 not in use
+#endif
 #ifdef	CONFIG_REVK_LED_FULL
            uint8_t type,        // Strip type (for timing)
 #endif
@@ -185,6 +191,15 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
       c = c->next;
    if (c)
    {
+#ifdef	CONFIG_REVK_LED_TEST
+      if (loop >= 0)
+      {
+         if (c->loop < 0)
+            c->loop = loop;
+         else if (c->loop != loop)
+            return "Loop GPIO mismatch";
+      }
+#endif
       if (c->invert != invert)
          return "Invert mismatch";
 #ifdef	CONFIG_REVK_LED_FULL
@@ -200,6 +215,9 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
          return "malloc";
       memset (c, 0, sizeof (*c));
       c->gpio = gpio;
+#ifdef	CONFIG_REVK_LED_TEST
+      c->loop = loop;
+#endif
 #ifdef	CONFIG_REVK_LED_FULL
       c->bits = bits[type];
 #endif
@@ -214,12 +232,21 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    uint32_t size = (uint32_t) 4 * colours * leds;
 #endif
    uint32_t new = (uint32_t) base + size;
-   if (LED_RESET + new > SPI_LL_DMA_MAX_BIT_LEN / 8)
+   uint32_t total = LED_RESET + new;
+#ifdef	CONFIG_REVK_LED_TEST
+   if (c->loop >= 0)
+      total++;
+#endif
+   if (total > SPI_LL_DMA_MAX_BIT_LEN / 8)
       return "Too many LEDs";   // Keep it sensible
-   uint8_t *mem = heap_caps_realloc (c->mem, LED_RESET + new, MALLOC_CAP_DMA);
+   uint8_t *mem = heap_caps_realloc (c->mem, total, MALLOC_CAP_DMA);
    if (!mem)
       return "malloc";
-   memset (mem, 0, LED_RESET);
+   if (LED_RESET)
+      memset (mem, 0, LED_RESET);
+#ifdef	CONFIG_REVK_LED_TEST
+   mem[total - 1] = 0xCC;       // final pulses for testing
+#endif
    c->mem = mem;
    c->size = new;
    led_strip_t s = heap_caps_malloc_prefer (sizeof (*s), MALLOC_CAP_SPIRAM);
@@ -321,6 +348,7 @@ led_set (led_strip_t s, uint16_t led, ...)
 const char *
 led_send (void)
 {
+   const char *e = NULL;
    if (!channel)
       return "No strips";
    led_channel_t c = channel;
@@ -335,15 +363,21 @@ led_send (void)
          .override_freq_hz = 2500000 * 4 / 3,
 #endif
       };
+#ifdef	CONFIG_REVK_LED_TEST
+      // TODO loop test clear
+#endif
       esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
       esp_err_t e = spi_device_transmit (handle, &txn);
       esp_rom_gpio_connect_out_signal (c->gpio, SIG_GPIO_OUT_IDX, c->invert, false);
+#ifdef	CONFIG_REVK_LED_TEST
+      // TODO loop test check
+#endif
 
       if (e)
          return esp_err_to_name (e);
       c = c->next;
    }
-   return NULL;
+   return e;
 }
 
 #endif

@@ -41,8 +41,11 @@ const char *led_deinit(void);
 // This adds a new strip. If multiple strips on the same GPIO, add in order. Sets *strip
 // Do not call during led_send().
 const char *led_strip(led_strip_t * strip,       // Where to store strip handle (stores NULL if error)
-                     uint8_t gpio,      // GPIO
+                     int8_t gpio,      // GPIO for LED strip
                      uint8_t invert,    // GPIO invert
+#ifdef	CONFIG_REVK_LED_TEST
+		     int8_t loop,	// GPIO for loopback from last LED in strip, -1 for not in use
+#endif
 #ifdef	CONFIG_REVK_LED_FULL
                      uint8_t type,      // Strip type (for timing)
 #endif

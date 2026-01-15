@@ -1926,6 +1926,13 @@ revk_blink_init (void)
                                     blink[0].num,
                                     blink[0].invert,
 #endif
+#ifdef	CONFIG_REVK_LED_TEST
+#ifdef	CONFIG_REVK_BLINK_WS2812_DEF
+                                    blink[2].set ? blink[2].num : -1,
+#else
+                                    blinktest.set ? blinktest.num : -1,
+#endif
+#endif
 #ifdef	CONFIG_REVK_LED_FULL
                                     LED_XINGLIGHT,
 #endif
