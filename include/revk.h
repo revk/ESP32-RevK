@@ -36,15 +36,16 @@
 
 #include "esp8266_httpd_compat.h"
 #include "esp8266_netif_compat.h"
+
+#ifndef  CONFIG_REVK_OLD_SETTINGS
+#include "../../main/settings.h"
+#endif
+
 #ifdef  CONFIG_REVK_LED_STRIP
 #include "led_strip.h"
 #endif
 #ifdef  CONFIG_REVK_LED
 #include "led.h"
-#endif
-
-#ifndef  CONFIG_REVK_OLD_SETTINGS
-#include "../../main/settings.h"
 #endif
 
 #include "revk_ctype.h"
