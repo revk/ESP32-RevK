@@ -9,6 +9,9 @@
 #include <driver/gpio.h>
 #include "esp_log.h"
 #include "hal/spi_ll.h"
+#ifdef  CONFIG_REVK_LED_TEST
+#include <driver/pulse_cnt.h>
+#endif
 
 static const char __attribute__((unused)) TAG[] = "LED";
 
@@ -364,8 +367,9 @@ led_send (void)
    if (!channel)
       return "No strips";
    led_channel_t c = channel;
-   while (c)
+   for (c = channel; c; c = c->next)
    {
+      esp_err_t err = 0;
       spi_transaction_t txn = {
          .length = 8 * (LED_RESET + c->size
 #ifdef	CONFIG_REVK_LED_TEST
@@ -380,17 +384,67 @@ led_send (void)
 #endif
       };
 #ifdef	CONFIG_REVK_LED_TEST
-      // TODO loop test clear
+      pcnt_unit_handle_t pcnt_unit = NULL;
+      pcnt_channel_handle_t pcnt_chan = NULL;
+      if (!e && c->loop.set)
+      {
+         pcnt_unit_config_t unit_config = {
+            .high_limit = 0x7FFF,
+            .low_limit = -1,
+         };
+         if (!err)
+            err = pcnt_new_unit (&unit_config, &pcnt_unit);
+         pcnt_chan_config_t chan_config = {
+            .edge_gpio_num = c->loop.num,
+            .level_gpio_num = -1,
+         };
+         if (!err)
+            err = pcnt_new_channel (pcnt_unit, &chan_config, &pcnt_chan);
+         if (!err)
+            err = pcnt_unit_enable (pcnt_unit);
+         if (!err)
+            err = pcnt_channel_set_edge_action (pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD);
+         if (!err)
+            err = pcnt_unit_clear_count (pcnt_unit);
+         if (!err)
+            err = pcnt_unit_start (pcnt_unit);
+      }
 #endif
-      esp_rom_gpio_connect_out_signal (c->gpio.num, spi_periph_signal[led_spi].spid_out, c->gpio.invert, false);
-      esp_err_t e = spi_device_transmit (handle, &txn);
-      esp_rom_gpio_connect_out_signal (c->gpio.num, SIG_GPIO_OUT_IDX, c->gpio.invert, false);
+      if (!err)
+      {
+         esp_rom_gpio_connect_out_signal (c->gpio.num, spi_periph_signal[led_spi].spid_out, c->gpio.invert, false);
+         err = spi_device_transmit (handle, &txn);
+         esp_rom_gpio_connect_out_signal (c->gpio.num, SIG_GPIO_OUT_IDX, c->gpio.invert, false);
+      }
 #ifdef	CONFIG_REVK_LED_TEST
-      // TODO loop test check
+      if (!e && !err && c->loop.set)
+      {
+         int count = 0;
+         esp_err_t err = 0;
+         if (!err)
+            err = pcnt_unit_get_count (pcnt_unit, &count);
+         if (!err)
+            err = pcnt_unit_stop (pcnt_unit);
+         if (!err)
+         {
+            if (!count)
+               e = "No LED loopback";
+            else if (count < 2)
+               e = "Incomplete LED loopback";
+            else if (count > 2)
+               e = "Extra LED loop back, check LED count";
+         }
+      }
+      if (pcnt_chan)
+         pcnt_del_channel (pcnt_chan);
+      if (pcnt_unit)
+      {
+         pcnt_unit_disable (pcnt_unit);
+         pcnt_del_unit (pcnt_unit);
+      }
 #endif
-      if (e)
-         return esp_err_to_name (e);
-      c = c->next;
+      if (err && !e)
+         e = esp_err_to_name (err);
    }
    return e;
 }
