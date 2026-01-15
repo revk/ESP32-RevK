@@ -241,11 +241,11 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
 #else
    uint32_t size = (uint32_t) 4 * colours * leds;
 #endif
-   uint32_t new = (uint32_t) base + size;
-   uint32_t total = LED_RESET + new;
+   uint32_t newbase = (uint32_t) base + size;
+   uint32_t total = LED_RESET + newbase;
 #ifdef	CONFIG_REVK_LED_TEST
    if (c->loop.set)
-      total++;
+      total++; // Extra byte on the end
 #endif
    if (total > SPI_LL_DMA_MAX_BIT_LEN / 8)
       return "Too many LEDs";   // Keep it sensible
@@ -255,10 +255,10 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    if (LED_RESET)
       memset (mem, 0, LED_RESET);       // Initial low pulse
 #ifdef	CONFIG_REVK_LED_TEST
-   mem[total - 1] = 0xCC;       // final pulses for testing
+   mem[total - 1] = 0x88;       // final pulses for testing
 #endif
    c->mem = mem;
-   c->size = new;
+   c->size = newbase;
    led_strip_t s = heap_caps_malloc_prefer (sizeof (*s), MALLOC_CAP_SPIRAM);
    if (!s)
       return "malloc";

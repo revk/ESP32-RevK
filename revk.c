@@ -4831,10 +4831,8 @@ revk_upgrade (const char *target, jo_t j)
       revk_restart (30, "OTA Download");        // Restart if download does not happen properly
 #ifdef	CONFIG_NIMBLE_ENABLED
       ESP_LOGI (TAG, "Stopping any BLE");
-      if (nimble_port_stop ())  // Stop bluetooth during download
-      {
+      if (!nimble_port_stop ())  // Stop bluetooth during download
          nimble_port_deinit ();
-      }
       esp_wifi_set_ps (WIFI_PS_NONE);   // Full wifi
 #endif
       sleep (1);
