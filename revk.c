@@ -1920,17 +1920,15 @@ revk_blink_init (void)
 #ifdef	CONFIG_REVK_LED
          const char *e = led_strip (&revk_strip,
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
-                                    blink.num,
-                                    blink.invert,
+                                    blink,
 #else
-                                    blink[0].num,
-                                    blink[0].invert,
+                                    blink[0],
 #endif
 #ifdef	CONFIG_REVK_LED_TEST
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
-                                    blink[2].set ? blink[2].num : -1,
+                                    blink[2],
 #else
-                                    blinktest.set ? blinktest.num : -1,
+                                    blinktest,
 #endif
 #endif
 #ifdef	CONFIG_REVK_LED_FULL
