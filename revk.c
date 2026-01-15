@@ -1939,8 +1939,11 @@ revk_blink_init (void)
                                     ws2812rgb ? LED_RGB :
 #endif
                                     LED_GRB);
+#ifdef	CONFIG_REVK_LED_TEST
+         if (!e)
+            e = led_send ();
          if (e)
-            ESP_LOGE (TAG, "Fail LED %s", e);
+            revk_ate_fail (e);
 #else
          led_strip_config_t strip_config = {
             .strip_gpio_num = (
@@ -4829,10 +4832,10 @@ revk_upgrade (const char *target, jo_t j)
       ESP_LOGI (TAG, "Resetting watchdog");
       REVK_ERR_CHECK (compat_task_wdt_reconfigure (false, 120 * 1000, true));
       revk_restart (30, "OTA Download");        // Restart if download does not happen properly
-#if 0	// This is now crashing for some reason
+#if 0                           // This is now crashing for some reason
 #ifdef	CONFIG_NIMBLE_ENABLED
       ESP_LOGI (TAG, "Stopping any BLE");
-      if (!nimble_port_stop ())  // Stop bluetooth during download
+      if (!nimble_port_stop ()) // Stop bluetooth during download
          nimble_port_deinit ();
       esp_wifi_set_ps (WIFI_PS_NONE);   // Full wifi
 #endif
