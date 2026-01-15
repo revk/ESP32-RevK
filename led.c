@@ -243,7 +243,7 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
    if (!mem)
       return "malloc";
    if (LED_RESET)
-      memset (mem, 0, LED_RESET);
+      memset (mem, 0, LED_RESET);       // Initial low pulse
 #ifdef	CONFIG_REVK_LED_TEST
    mem[total - 1] = 0xCC;       // final pulses for testing
 #endif
@@ -355,7 +355,11 @@ led_send (void)
    while (c)
    {
       spi_transaction_t txn = {
-         .length = 8 * (LED_RESET + c->size),
+         .length = 8 * (LED_RESET + c->size
+#ifdef	CONFIG_REVK_LED_TEST
+                        + (c->loop >= 0 ? 1 : 0)
+#endif
+            ),
          .tx_buffer = c->mem,
 #ifdef	CONFIG_REVK_LED_FULL
          .override_freq_hz = 2500000 * c->bits / 3,
