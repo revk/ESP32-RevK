@@ -154,7 +154,7 @@ led_deinit (void)
 // This adds a new strip. If multiple strips on the same GPIO, add in order. Sets *strip
 // Do not call during led_send().
 const char *led_strip (led_strip_t * stripp,    // Where to store strip handle (stores NULL if error)
-                       revk_gpio_t gpio;        // Strip GPIO
+                       revk_gpio_t gpio,        // Strip GPIO
 #ifdef	CONFIG_REVK_LED_TEST
                        revk_gpio_t loop,        // GPIO loopback test, -1 not in use
 #endif
@@ -231,7 +231,6 @@ const char *led_strip (led_strip_t * stripp,    // Where to store strip handle (
 #ifdef	CONFIG_REVK_LED_FULL
       c->bits = bits[type];
 #endif
-      c->invert = invert;
       c->next = channel;
       channel = c;
    }
@@ -380,9 +379,9 @@ led_send (void)
 #ifdef	CONFIG_REVK_LED_TEST
       // TODO loop test clear
 #endif
-      esp_rom_gpio_connect_out_signal (c->gpio.num, spi_periph_signal[led_spi].spid_out, c->invert, false);
+      esp_rom_gpio_connect_out_signal (c->gpio.num, spi_periph_signal[led_spi].spid_out, c->gpio.invert, false);
       esp_err_t e = spi_device_transmit (handle, &txn);
-      esp_rom_gpio_connect_out_signal (c->gpio.num, SIG_GPIO_OUT_IDX, c->invert, false);
+      esp_rom_gpio_connect_out_signal (c->gpio.num, SIG_GPIO_OUT_IDX, c->gpio.invert, false);
 #ifdef	CONFIG_REVK_LED_TEST
       // TODO loop test check
 #endif
