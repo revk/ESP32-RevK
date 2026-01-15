@@ -177,7 +177,7 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
       return "GPIO not set";
 #ifdef	CONFIG_REVK_LED_TEST
    if (loop.set && loop.num == gpio.num)
-      loop.set = 0;             // Not valid, but could be blink[2] so ignore
+      loop.set = 0;             // Not valid, but setting to same as GPIO is a way to say no loop needed and works for blink[2] case
 #endif
    if (!colours)
       return "No colours";
