@@ -36,26 +36,25 @@ const char *led_init (int spi_host);
 
 // This releases the SPI host and frees resources
 // THIS INVALIDATES EXISTING STRIP HANDLES - DO NOT CALL DURING led_send()
-const char *led_deinit(void);
+const char *led_deinit (void);
 
 // This adds a new strip. If multiple strips on the same GPIO, add in order. Sets *strip
 // Do not call during led_send().
-const char *led_strip(led_strip_t * strip,       // Where to store strip handle (stores NULL if error)
-                     int8_t gpio,      // GPIO for LED strip
-                     uint8_t invert,    // GPIO invert
+const char *led_strip (led_strip_t * strip,     // Where to store strip handle (stores NULL if error)
+                       revk_gpio_t gpio,        // LED strip GPIO
 #ifdef	CONFIG_REVK_LED_TEST
-		     int8_t loop,	// GPIO for loopback from last LED in strip, -1 for not in use
+                       revk_gpio_t loop,        // LED strip loopback test GPIO
 #endif
 #ifdef	CONFIG_REVK_LED_FULL
-                     uint8_t type,      // Strip type (for timing)
+                       uint8_t type,    // Strip type (for timing)
 #endif
-                     uint16_t leds,     // Number of LEDs
-                     uint8_t colours,   // Number of colours, normally 3 or 4, but can be more
-                     uint8_t order      // RGB Colour order
+                       uint16_t leds,   // Number of LEDs
+                       uint8_t colours, // Number of colours, normally 3 or 4, but can be more
+                       uint8_t order    // RGB Colour order
    );
 
 // Clear strip (all LEDs off)
-const char *led_clear(led_strip_t strip);
+const char *led_clear (led_strip_t strip);
 
 // Set value of LED, called with three uint8_t for R/G/B, or more if more than 3 colours on strip, e.g. R/G/B/W
 const char *led_set (led_strip_t strip, uint16_t led, ...);

@@ -34,11 +34,10 @@ typedef struct led_channel_s *led_channel_t;
 struct led_channel_s
 {
    led_channel_t next;          // Next channel
-   int8_t gpio;                 // GPIO
+   revk_gpio_t gpio;            // LED strip GPIO
 #ifdef	CONFIG_REVK_LED_TEST
-   int8_t loop;                 // GPIO for loopback test -1 for not in use
+   revk_gpio_t loop;            // LED strip loopback test GPIP
 #endif
-   uint8_t invert:1;            // GPIO invert
 #ifdef	CONFIG_REVK_LED_FULL
    uint8_t bits:3;              // Bits per bit (based on type)
 #endif
@@ -154,62 +153,73 @@ led_deinit (void)
 
 // This adds a new strip. If multiple strips on the same GPIO, add in order. Sets *strip
 // Do not call during led_send().
-const char *
-led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if error)
-           int8_t gpio,         // GPIO
-           uint8_t invert,      // GPIO invert
+const char *led_strip (led_strip_t * stripp,    // Where to store strip handle (stores NULL if error)
+                       revk_gpio_t gpio;        // Strip GPIO
 #ifdef	CONFIG_REVK_LED_TEST
-           int8_t loop,         // GPIO loopback test, -1 not in use
+                       revk_gpio_t loop,        // GPIO loopback test, -1 not in use
 #endif
 #ifdef	CONFIG_REVK_LED_FULL
-           uint8_t type,        // Strip type (for timing)
+                       uint8_t type,    // Strip type (for timing)
 #endif
-           uint16_t leds,       // Number of LEDs
-           uint8_t colours,     // Number of colours, normally 3 or 4, but can be more
-           uint8_t order        // RGB Colour order
+                       uint16_t leds,   // Number of LEDs
+                       uint8_t colours, // Number of colours, normally 3 or 4, but can be more
+                       uint8_t order    // RGB Colour order
    )
 {
-   if (led_spi == SPI_HOST_MAX)
-#if	SOC_SPI_PERIPH_NUM < 3
-      set_spi (SPI2_HOST);
-#else
-      set_spi (SPI3_HOST);
-#endif
    if (!stripp)
       return "No strip pointer";
    *stripp = NULL;
+   if (!gpio.set)
+      return "GPIO not set";
+#ifdef	CONFIG_REVK_LED_TEST
+   if (loop.set && loop.num != gpio.num)
+      return "Loop invalid";
+#endif
    if (!colours)
       return "No colours";
+   if (led_spi == SPI_HOST_MAX)
 #ifdef	CONFIG_REVK_LED_FULL
-   if (type >= LED_TYPES)
-      return "Invalid type";
+      if (type >= LED_TYPES)
+         return "Invalid type";
 #endif
    if (order >= 6)
       return "Invalid order";
+#if	SOC_SPI_PERIPH_NUM < 3
+   set_spi (SPI2_HOST);
+#else
+   set_spi (SPI3_HOST);
+#endif
    led_channel_t c = channel;
-   while (c && c->gpio != gpio)
+   while (c && c->gpio.num != gpio.num)
       c = c->next;
    if (c)
    {
-#ifdef	CONFIG_REVK_LED_TEST
-      if (loop >= 0)
-      {
-         if (c->loop < 0)
-            c->loop = loop;
-         else if (c->loop != loop)
-            return "Loop GPIO mismatch";
-      }
-#endif
-      if (c->invert != invert)
+      if (c->gpio.invert != gpio.invert)
          return "Invert mismatch";
 #ifdef	CONFIG_REVK_LED_FULL
       if (c->bits != bits[type])
          return "Type mismatch";
 #endif
+#ifdef	CONFIG_REVK_LED_TEST
+      if (loop.set)
+      {
+         if (!c->lopp.set)
+         {
+            if (loop.set && (gpio_reset_pin (loop.num) || gpio_set_direction (loop.num, GPIO_MODE_INPUT)))
+               return "Loop GPIO error";
+            c->loop = loop;
+         } else if (c->loop.num != loop.num || c->loop.invert != loop.invert)
+            return "Loop GPIO mismatch";
+      }
+#endif
    } else
    {
-      if (gpio_reset_pin (gpio) || gpio_set_level (gpio, 0) || gpio_set_direction (gpio, GPIO_MODE_OUTPUT))
+      if (gpio_reset_pin (gpio.num) || gpio_set_level (gpio.num, 0) || gpio_set_direction (gpio.num, GPIO_MODE_OUTPUT))
          return "GPIO error";
+#ifdef	CONFIG_REVK_LED_TEST
+      if (loop.set && (gpio_reset_pin (loop.num) || gpio_set_direction (loop.num, GPIO_MODE_INPUT)))
+         return "Loop GPIO error";
+#endif
       c = heap_caps_malloc_prefer (sizeof (*c), MALLOC_CAP_SPIRAM);
       if (!c)
          return "malloc";
@@ -370,13 +380,12 @@ led_send (void)
 #ifdef	CONFIG_REVK_LED_TEST
       // TODO loop test clear
 #endif
-      esp_rom_gpio_connect_out_signal (c->gpio, spi_periph_signal[led_spi].spid_out, c->invert, false);
+      esp_rom_gpio_connect_out_signal (c->gpio.num, spi_periph_signal[led_spi].spid_out, c->invert, false);
       esp_err_t e = spi_device_transmit (handle, &txn);
-      esp_rom_gpio_connect_out_signal (c->gpio, SIG_GPIO_OUT_IDX, c->invert, false);
+      esp_rom_gpio_connect_out_signal (c->gpio.num, SIG_GPIO_OUT_IDX, c->invert, false);
 #ifdef	CONFIG_REVK_LED_TEST
       // TODO loop test check
 #endif
-
       if (e)
          return esp_err_to_name (e);
       c = c->next;
