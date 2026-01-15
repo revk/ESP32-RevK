@@ -1942,6 +1942,7 @@ revk_blink_init (void)
 #ifdef	CONFIG_REVK_LED_TEST
          if (!e)
             e = led_send ();
+#endif
          if (e)
             revk_ate_fail (e);
 #else
