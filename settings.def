@@ -53,7 +53,7 @@ bit	ws2812rgb	0			.revk			// Reverse green and red on WS2812 LED
 #ifdef	CONFIG_REVK_LED_TEST
 gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (for WS2818, set first two the same, third can be loop test)
 #else
-gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (for WS2812, set first two the same
+gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (for WS2812, set first two the same)
 #endif
 #endif
 #endif
