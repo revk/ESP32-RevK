@@ -96,19 +96,19 @@ menu "RevK"
         help
 		Support LED strip for status LED - set by build system if led_strip managed_component is present
 
-	config REVK_LED_FULL
-	bool "LED strip library support multiple type of LED"
-	default n
-	depends on REVK_LED
-        help
-		If not set, then the LED library does a fixed timing pattern that seems to work with most LED types. Set this to specifically support different LED timings.
-
 	config REVK_LED_TEST
 	bool "LED strip library supports testing loop back final LED to another GPIO"
 	default n
 	depends on REVK_LED
         help
 		If set then led_strip has a loopback GPIO and led_send reports error if loopback not working.
+
+	config REVK_LED_FULL
+	bool "LED strip library support multiple type of LED"
+	default n
+	depends on REVK_LED
+        help
+		If not set, then the LED library does a fixed timing pattern that seems to work with most LED types. Set this to specifically support different LED timings.
 
 	config REVK_RGB_MAX_R
 	int "Max red"
