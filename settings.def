@@ -54,6 +54,7 @@ gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (for WS2818, s
 #else
 gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (for WS2812, set first two the same
 #endif
+#endif
 #ifdef  CONFIG_REVK_APMODE
 #ifdef	CONFIG_REVK_APCONFIG
 u16	ap.port		CONFIG_REVK_APPORT	.revk			// TCP port for config web pages on AP
