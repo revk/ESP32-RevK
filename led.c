@@ -203,7 +203,7 @@ const char *led_strip (led_strip_t * stripp,    // Where to store strip handle (
 #ifdef	CONFIG_REVK_LED_TEST
       if (loop.set)
       {
-         if (!c->lopp.set)
+         if (!c->loop.set)
          {
             if (loop.set && (gpio_reset_pin (loop.num) || gpio_set_direction (loop.num, GPIO_MODE_INPUT)))
                return "Loop GPIO error";
