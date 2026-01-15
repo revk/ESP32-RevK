@@ -153,17 +153,18 @@ led_deinit (void)
 
 // This adds a new strip. If multiple strips on the same GPIO, add in order. Sets *strip
 // Do not call during led_send().
-const char *led_strip (led_strip_t * stripp,    // Where to store strip handle (stores NULL if error)
-                       revk_gpio_t gpio,        // Strip GPIO
+const char *
+led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if error)
+           revk_gpio_t gpio,    // Strip GPIO
 #ifdef	CONFIG_REVK_LED_TEST
-                       revk_gpio_t loop,        // GPIO loopback test, -1 not in use
+           revk_gpio_t loop,    // GPIO loopback test, -1 not in use
 #endif
 #ifdef	CONFIG_REVK_LED_FULL
-                       uint8_t type,    // Strip type (for timing)
+           uint8_t type,        // Strip type (for timing)
 #endif
-                       uint16_t leds,   // Number of LEDs
-                       uint8_t colours, // Number of colours, normally 3 or 4, but can be more
-                       uint8_t order    // RGB Colour order
+           uint16_t leds,       // Number of LEDs
+           uint8_t colours,     // Number of colours, normally 3 or 4, but can be more
+           uint8_t order        // RGB Colour order
    )
 {
    if (!stripp)
@@ -243,7 +244,7 @@ const char *led_strip (led_strip_t * stripp,    // Where to store strip handle (
    uint32_t new = (uint32_t) base + size;
    uint32_t total = LED_RESET + new;
 #ifdef	CONFIG_REVK_LED_TEST
-   if (c->loop >= 0)
+   if (c->loop.set)
       total++;
 #endif
    if (total > SPI_LL_DMA_MAX_BIT_LEN / 8)
@@ -366,7 +367,7 @@ led_send (void)
       spi_transaction_t txn = {
          .length = 8 * (LED_RESET + c->size
 #ifdef	CONFIG_REVK_LED_TEST
-                        + (c->loop >= 0 ? 1 : 0)
+                        + (c->loop.set ? 1 : 0)
 #endif
             ),
          .tx_buffer = c->mem,
