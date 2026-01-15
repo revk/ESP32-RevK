@@ -41,6 +41,7 @@ s	topic.error	error			.revk .old="prefixerror"			// MQTT Topic for error
 s	topic.ha	homeassistant		.revk						// MQTT Topic for homeassistant
 bit	prefix.app	CONFIG_REVK_PREFIXAPP	.revk			// MQTT use appname/ in front of hostname in topic
 bit	prefix.host	CONFIG_REVK_PREFIXHOST	.revk			// MQTT use (appname/)hostname/topic instead of topic/(appname/)hostname
+
 #ifdef	CONFIG_REVK_BLINK_DEF
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
 gpio	blink		CONFIG_REVK_BLINK	.revk			// WS2812 LED
@@ -55,6 +56,8 @@ gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (for WS2818, s
 gpio	blink		CONFIG_REVK_BLINK	.revk	.array=3	// R, G, B LED array (for WS2812, set first two the same
 #endif
 #endif
+#endif
+
 #ifdef  CONFIG_REVK_APMODE
 #ifdef	CONFIG_REVK_APCONFIG
 u16	ap.port		CONFIG_REVK_APPORT	.revk			// TCP port for config web pages on AP
