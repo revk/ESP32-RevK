@@ -161,7 +161,7 @@ When 3 GPIOs you can set as :-
 
 - Single GPIO (first in array only) for direct blink LED on/off
 - Array of three different GPIO for Red, Green, Blue LEDs
-- First and second entry being the *same* GPIO meaning use WS2818 style LED
+- First and second entry being the *same* GPIO meaning use WS2818 style LED - third can be loop back test if configured
 
 At startup (until 2 seconds) the GREEN LED is on
 

@@ -245,6 +245,8 @@ All these functions have a string return for error, and NULL for no error.
 
 Note that you can add multiple strips, including strips that are on the same GPIO as previous strips. Initially, if `blink` is set for a WS28128 style LED, the library creates the first strip as one LED on the `blink` GPIOs, but you can add your own strip(s) on the same GPIO for LEDs you have chained off the initial *status* LED, even if these are different colour format. You can set LEDs and leave the library to send every 1/10th second, or you can coniffgure so you decide when to send.
 
+There is a config option for looped back LED test, which adds an extra GPIO to `led_strip` and an extra error return from `led_send`.
+
 ### ATE
 
 If `CONFIG_REVK_ATE` is set, ATE working includes some additional console output for ATE working (intended for work with [Flasher](https://flasher.revk.uk/). It also allows settings to be set via the console. The messages are in JSON format with a new line.
