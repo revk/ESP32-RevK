@@ -206,7 +206,8 @@ led_strip (led_strip_t *stripp, // Where to store strip handle (stores NULL if e
       {
          if (!c->loop.set)
          {
-            if (loop.set && (gpio_reset_pin (loop.num) || gpio_set_direction (loop.num, GPIO_MODE_INPUT)))
+            if (loop.set
+                && (gpio_reset_pin (loop.num) || gpio_set_direction (loop.num, GPIO_MODE_INPUT) || gpio_pulldown_en (loop.num)))
                return "Loop GPIO error";
             c->loop = loop;
          } else if (c->loop.num != loop.num || c->loop.invert != loop.invert)
