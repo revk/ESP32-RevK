@@ -4829,11 +4829,13 @@ revk_upgrade (const char *target, jo_t j)
       ESP_LOGI (TAG, "Resetting watchdog");
       REVK_ERR_CHECK (compat_task_wdt_reconfigure (false, 120 * 1000, true));
       revk_restart (30, "OTA Download");        // Restart if download does not happen properly
+#if 0	// This is now crashing for some reason
 #ifdef	CONFIG_NIMBLE_ENABLED
       ESP_LOGI (TAG, "Stopping any BLE");
       if (!nimble_port_stop ())  // Stop bluetooth during download
          nimble_port_deinit ();
       esp_wifi_set_ps (WIFI_PS_NONE);   // Full wifi
+#endif
 #endif
       sleep (1);
    }
