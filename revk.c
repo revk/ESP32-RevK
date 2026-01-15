@@ -1926,9 +1926,9 @@ revk_blink_init (void)
 #endif
 #ifdef	CONFIG_REVK_LED_TEST
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
-                                    blink[2],
-#else
                                     blinktest,
+#else
+                                    blink[2],
 #endif
 #endif
 #ifdef	CONFIG_REVK_LED_FULL
