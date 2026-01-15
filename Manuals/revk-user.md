@@ -155,11 +155,13 @@ Sending a `setting` message with no suffix and no payload causes a `setting` res
 
 #### Status LED
 
-The status LED is defined by `blink`, which is an array of GPIO. It can be
+The status LED is defined by `blink`. This can be set as a single GPIO if configured for WS2812 style LED, or can be an array of 3 GPIOs if support for distinct colours.
+
+When 3 GPIOs you can set as :-
 
 - Single GPIO (first in array only) for direct blink LED on/off
 - Array of three different GPIO for Red, Green, Blue LEDs
-- First and second entry being the *same* GPIO meaning use LED STRIP (if included in managed components).
+- First and second entry being the *same* GPIO meaning use WS2818 style LED
 
 At startup (until 2 seconds) the GREEN LED is on
 

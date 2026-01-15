@@ -226,9 +226,24 @@ You do not need to close everything, when you finish the construction all necess
 
 The status LED can be set by `revk_blink (uint8_t on, uint8_t off, const char *colours)` where colours is a string of at least one character being from `RGBCMYKW` for basic RGB colours. The LED will blink with the on/off times specified (10th second period) in the sequence of colours specified, repeating. Colours only apply if a RGB or WS2812B LEDs are defined in `blink`.
 
-Note that if `led_strip` is included in managed components then the library can work a WS2812B LED instead of discrete RGB LEDs. This will normally create a single LED *strip*. However `revk_strip` can be initialised before starting the library to allow more LEDs, and the library will set the first LED for status and update all LEDs 10 times a second. This allows the application to set other LEDs with `led_strip_set_pixel (revk_strip, i, r, g, b)` and rely on it being refreshed automatically by the library. Where the `revk_strip` is preset, this process applies ever if a fixed LED or fixed RGB LED is also defined in `blink`.
-
 See [Default LEDs](LED.md) for standard/default LED sequences.
+
+### WS2818 style LED strip support
+
+There are a number of config options. This library can work with the Espressif managed component for `led_strip`.
+
+More details in the `led.h` include file.
+
+- `led_init` is optional, but can be used to specify the SPI channel to use - if not used the first `led_strip` does an init on a default SPI channel
+- `led_deinit` can be used to clear memory and release the SPI channel
+- `led_strip` adds a strip - specifying the GPIO and number of LEDs and colour format (and type if need, see config option for LED types)
+- `led_clear` clears a strip (black/off)
+- `led_set` Sets the colour of an LED on a strip
+- `led_send` Updates all strips
+
+All these functions have a string return for error, and NULL for no error.
+
+Note that you can add multiple strips, including strips that are on the same GPIO as previous strips. Initially, if `blink` is set for a WS28128 style LED, the library creates the first strip as one LED on the `blink` GPIOs, but you can add your own strip(s) on the same GPIO for LEDs you have chained off the initial *status* LED, even if these are different colour format. You can set LEDs and leave the library to send every 1/10th second, or you can coniffgure so you decide when to send.
 
 ### ATE
 

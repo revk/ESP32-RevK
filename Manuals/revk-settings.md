@@ -52,7 +52,7 @@ Sending an empty group, e.g. `{"mqtt":{}}` sets all *non secret* values to defau
 
 ## Setting arrays
 
-Some settings are an array of values, e.g. `blink` is three GPIOs (*red*, *green*, *blue*).
+Some settings are an array of values, e.g. `blink` may be three GPIOs (*red*, *green*, *blue*), though latest defaults use only one GPIO for a WS2812 style LED.
 
 You can set individual values with a number, e.g. `{"blink2":5}` would change the middle value and not affect the others (yes, it starts from 1, don't ask).
 
