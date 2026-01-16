@@ -290,7 +290,7 @@ static struct
    uint8_t factorycount:2;
    uint8_t factorytick:5;
 #ifdef	CONFIG_REVK_ATE
-   uint8_t atedone:1;
+   uint8_t atefailed:1;
 #endif
 } volatile b = { 0 };
 
@@ -2543,9 +2543,8 @@ void
 revk_ate_pass (void)
 {
 #ifdef	CONFIG_REVK_ATE
-   if (!b.atedone)
+   if (!b.atefailed)
    {
-      b.atedone = 1;
       jo_t j = jo_object_alloc ();
       jo_bool (j, "ate", 1);
       revk_console (&j);
@@ -2557,15 +2556,24 @@ void
 revk_ate_fail (const char *reason)
 {
 #ifdef	CONFIG_REVK_ATE
-   if (!b.atedone)
+   if (!b.atefailed)
    {
-      b.atedone = 1;
+      b.atefailed = 1;
       jo_t j = jo_object_alloc ();
       jo_bool (j, "ate", 0);
       if (reason)
          jo_string (j, "reason", reason);
       revk_console (&j);
    }
+#endif
+}
+
+int revk_ate_failed(void)
+{
+#ifdef	CONFIG_REVK_ATE
+	return b.atefailed;
+#else
+	return 0;
 #endif
 }
 
