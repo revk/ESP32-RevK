@@ -131,7 +131,7 @@ void revk_start (void);
 void revk_pre_shutdown (void);
 void revk_ate_pass(void);
 void revk_ate_fail(const char*);
-int revk_ate_failed(voi);
+int revk_ate_failed(void);
 
 #ifdef	CONFIG_REVK_OLD_SETTINGS
 // Register a setting, call from init (i.e. this is not expecting to be thread safe) - sets the value when called and on revk_setting/MQTT changes
