@@ -1919,14 +1919,14 @@ revk_blink_init (void)
       {                         // Initialise the LED strip for one LED. This can, however, be pre-set by the app where we will refresh every 10th second and set 1st LED for status
 #ifdef	CONFIG_REVK_LED
          const char *e = led_strip (&revk_strip,
-#ifdef	CONFIG_REVK_BLINK_WS2812_DEF
+#if	defined(CONFIG_REVK_BLINK_WS2812_DEF) && ! defined(CONFIG_REVK_LED_TEST)
                                     blink,
 #else
                                     blink[0],
 #endif
 #ifdef	CONFIG_REVK_LED_TEST
 #ifdef	CONFIG_REVK_BLINK_WS2812_DEF
-                                    blinktest,
+                                    blink[1],
 #else
                                     blink[2],
 #endif
@@ -2568,12 +2568,13 @@ revk_ate_fail (const char *reason)
 #endif
 }
 
-int revk_ate_failed(void)
+int
+revk_ate_failed (void)
 {
 #ifdef	CONFIG_REVK_ATE
-	return b.atefailed;
+   return b.atefailed;
 #else
-	return 0;
+   return 0;
 #endif
 }
 

@@ -155,7 +155,7 @@ Sending a `setting` message with no suffix and no payload causes a `setting` res
 
 #### Status LED
 
-The status LED is defined by `blink`. This can be set as a single GPIO if configured for WS2812 style LED, or can be an array of 3 GPIOs if support for distinct colours.
+The status LED is defined by `blink`. This can be set as a single GPIO if configured for WS2812 style LED and no loop test, or an array of two GPIOs for WS2812 with loop test, or can be an array of 3 GPIOs if support for distinct colours.
 
 When 3 GPIOs you can set as :-
 
