@@ -3630,7 +3630,7 @@ revk_web_setting_edit (httpd_req_t *req, const char *tag, const char *field, con
          w = (w * 8 + 4) / 5;
       else if (s->base64)
          w = (w * 8 + 5) / 6;
-      else
+      else if(w)
          w--;                   // Lose the null
       if (w)                    // Text (fixed)
          revk_web_send (req,
