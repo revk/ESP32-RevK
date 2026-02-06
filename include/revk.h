@@ -305,7 +305,7 @@ char *revk_ipv4gw (char ipv4[16]); // Current IPv4 gateway or NULL
 char *revk_ipv6(char ipv6[40]); // Current main IPv6 (non FE80) or NULL
 
 #if	defined(CONFIG_GFX_WIDTH) && ! defined(CONFIG_GFX_BUILD_SUFFIX_GFXNONE)	// GFX installed
-void revk_gfx_init(uint32_t secs);	// Display info page, depends on IP connected, and AP mode
+void revk_gfx_init(int secs);	// Display info page, depends on IP connected, and AP mode
 #endif
 
 #endif

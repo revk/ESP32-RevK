@@ -3630,7 +3630,7 @@ revk_web_setting_edit (httpd_req_t *req, const char *tag, const char *field, con
          w = (w * 8 + 4) / 5;
       else if (s->base64)
          w = (w * 8 + 5) / 6;
-      else if(w)
+      else if (w)
          w--;                   // Lose the null
       if (w)                    // Text (fixed)
          revk_web_send (req,
@@ -5765,8 +5765,8 @@ extern uint16_t gfx_width (void);
 extern uint16_t gfx_height (void);
 extern void gfx_text_size (uint8_t flags, uint8_t size, const char *, int16_t * w, int16_t * h);
 void
-revk_gfx_init (uint32_t secs)
-{                               // Display info page, depends on IP connected, and AP mode
+revk_gfx_init (int secs)
+{                               // Display info page, depends on IP connected, and AP mode: -ve secs fixed time, +ve secs is since we get IP
    uint16_t w = gfx_width ();
    uint16_t s = gfx_height () / 100 ? : 1;
    if (w / 100 < s)
@@ -5791,7 +5791,12 @@ revk_gfx_init (uint32_t secs)
    char apn[33];
    char temp[50];
    uint8_t status = 0xFF;
-   while ((up = uptime ()) - start < secs || !start)
+   if (secs < 0)
+   {
+      secs = -secs;
+      start = uptime ()? : 1;
+   }
+   while ((up = (uptime ()? : 1)) - start < secs || !start)
    {
       uint8_t newstatus = 0;
       if (revk_ipv4 (ipv4))
